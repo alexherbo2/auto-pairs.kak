@@ -27,6 +27,26 @@ hook global WinCreate .* %{
 map global user s :auto-pairs-surround<ret>
 ```
 
+### Status line integration
+
+``` kak
+set global modelinefmt '… %opt(block_auto_pairs) …'
+
+decl str block_auto_pairs
+
+def -hidden block-update-auto-pairs %{ %sh{
+  if [ $kak_opt_auto_pairs_surround_enabled = true ]; then
+    text=surround
+  else
+    text="''"
+  fi
+  echo set window block_auto_pairs $text
+}}
+
+hook global InsertBegin .* block-update-auto-pairs
+hook global NormalBegin .* block-update-auto-pairs
+```
+
 Commands
 --------
 

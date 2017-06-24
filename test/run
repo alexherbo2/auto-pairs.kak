@@ -1,0 +1,23 @@
+#!/bin/sh
+
+auto_pairs=$(dirname $(dirname $(realpath $0)))
+
+kak=$(realpath $(which kak))
+
+cd $(dirname $kak)
+
+kakoune=$(git rev-parse --show-toplevel)
+
+[ $? = 0 ] || {
+  echo Kakoune binary is not in a Git repository > /dev/stderr
+  exit 1
+}
+
+cp --recursive $auto_pairs/rc $kakoune/rc/auto-pairs
+cp --recursive $auto_pairs/test $kakoune/test/auto-pairs
+
+cd $kakoune/test
+
+./run auto-pairs
+
+rm --force --recursive $kakoune/{rc,test}/auto-pairs

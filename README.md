@@ -43,8 +43,10 @@ def -hidden block-update-auto-pairs %{ %sh{
   echo set window block_auto_pairs $text
 }}
 
-hook global InsertBegin .* block-update-auto-pairs
-hook global NormalBegin .* block-update-auto-pairs
+hook global WinCreate .* %{
+  hook window InsertBegin .* block-update-auto-pairs
+  hook window NormalBegin .* block-update-auto-pairs
+}
 ```
 
 Commands

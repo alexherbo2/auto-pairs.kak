@@ -58,7 +58,7 @@ def -hidden auto-pairs-delete-space %{ try %{
   exec -no-hooks <del>
 }}
 
-def auto-pairs-enable -docstring 'Enable automatic closing of pairs' %{
+def auto-pairs-enable -docstring 'auto-pairs-enable: enable automatic closing of pairs' %{
   %sh{
     for pair in $(printf %s "$kak_opt_auto_pairs" | tr : '\n'); do
       opener=$(printf %s "$pair" | cut -d , -f 1)
@@ -78,13 +78,13 @@ def auto-pairs-enable -docstring 'Enable automatic closing of pairs' %{
   set window auto_pairs_enabled yes
 }
 
-def auto-pairs-disable -docstring 'Disable automatic closing of pairs' %{
+def auto-pairs-disable -docstring 'auto-pairs-disable: disable automatic closing of pairs' %{
   remove-hooks window auto-pairs-insert
   remove-hooks window auto-pairs-delete
   set window auto_pairs_enabled no
 }
 
-def auto-pairs-toggle -docstring 'Toggle automatic closing of pairs' %{ %sh{
+def auto-pairs-toggle -docstring 'auto-pairs-toggle: toggle automatic closing of pairs' %{ %sh{
   if [ "$kak_opt_auto_pairs_enabled" = true ]; then
     echo auto-pairs-disable
   else
@@ -100,7 +100,7 @@ def -hidden -params 2 auto-pairs-surround-delete-opener %{
   exec -draft "<a-;>l<a-k>\Q%arg{2}<ret>d"
 }
 
-def auto-pairs-surround -docstring 'Enable automatic closing of pairs on selection boundaries for the whole insert session' %{
+def auto-pairs-surround -docstring 'auto-pairs-surround: enable automatic closing of pairs on selection boundaries for the whole insert session' %{
   %sh{
     if [ "$kak_opt_auto_pairs_enabled" = true ]; then
       echo set window auto_pairs_was_enabled yes

@@ -64,6 +64,6 @@ Options
 - `auto_pairs_enabled` `bool`: information about the way auto-pairs is active (read-only)
 - `auto_pairs_surround_enabled` `bool`: information about the way auto-pairs-surround is active (read-only)
 
-[Kakoune]: https://github.com/mawww/kakoune
+[Kakoune]: http://kakoune.org
 [freenode/kakoune]: https://webchat.freenode.net?channels=kakoune
 [shields/kakoune/badge]: https://img.shields.io/badge/IRC-%23kakoune-blue.svg

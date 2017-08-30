@@ -60,14 +60,16 @@ def -hidden auto-pairs-delete-space %{ try %{
 
 def auto-pairs-enable -docstring 'auto-pairs-enable: enable automatic closing of pairs' %{
   %sh{
+    IFS='
+'
     for pair in $(printf %s "$kak_opt_auto_pairs" | tr : '\n'); do
       opener=$(printf %s "$pair" | cut -d , -f 1)
       closer=$(printf %s "$pair" | cut -d , -f 2)
-      printf '%s\n' "hook window InsertChar \Q$opener -group auto-pairs-insert %(auto-pairs-insert-opener %-$opener- %-$closer-)"
-      printf '%s\n' "hook window InsertDelete \Q$opener -group auto-pairs-delete %(auto-pairs-delete-opener %-$opener- %-$closer-)"
+      printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-insert %(auto-pairs-insert-opener %-$opener- %-$closer-)"
+      printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-delete %(auto-pairs-delete-opener %-$opener- %-$closer-)"
       if [ "$opener" != "$closer" ]; then
-        printf '%s\n' "hook window InsertChar \Q$closer -group auto-pairs-insert %(auto-pairs-insert-closer %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertDelete \Q$closer -group auto-pairs-delete %(auto-pairs-delete-closer %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertChar %-\Q$closer- -group auto-pairs-insert %(auto-pairs-insert-closer %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertDelete %-\Q$closer- -group auto-pairs-delete %(auto-pairs-delete-closer %-$opener- %-$closer-)"
       fi
     done
   }
@@ -102,6 +104,8 @@ def -hidden -params 2 auto-pairs-surround-delete-opener %{
 
 def auto-pairs-surround -docstring 'auto-pairs-surround: enable automatic closing of pairs on selection boundaries for the whole insert session' %{
   %sh{
+    IFS='
+'
     if [ "$kak_opt_auto_pairs_enabled" = true ]; then
       echo set window auto_pairs_was_enabled yes
     else
@@ -110,8 +114,8 @@ def auto-pairs-surround -docstring 'auto-pairs-surround: enable automatic closin
     for pair in $(printf %s "$kak_opt_auto_pairs" | tr : '\n'); do
       opener=$(printf %s "$pair" | cut -d , -f 1)
       closer=$(printf %s "$pair" | cut -d , -f 2)
-      printf '%s\n' "hook window InsertChar \Q$opener -group auto-pairs-surround-insert %(auto-pairs-surround-insert-opener %-$opener- %-$closer-)"
-      printf '%s\n' "hook window InsertDelete \Q$opener -group auto-pairs-surround-delete %(auto-pairs-surround-delete-opener %-$opener- %-$closer-)"
+      printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-surround-insert %(auto-pairs-surround-insert-opener %-$opener- %-$closer-)"
+      printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-surround-delete %(auto-pairs-surround-delete-opener %-$opener- %-$closer-)"
     done
   }
   hook window InsertEnd .* -group auto-pairs-surround-insert-end %{

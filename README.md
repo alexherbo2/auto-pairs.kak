@@ -27,6 +27,12 @@ hook global WinCreate .* %{
 map global user s :auto-pairs-surround<ret>
 ```
 
+### Custom pairs
+
+``` kak
+set -add global auto_pairs %(（,）:｛,｝:［,］:〈,〉:『,』:「,」)
+```
+
 ### Status line integration
 
 ``` kak

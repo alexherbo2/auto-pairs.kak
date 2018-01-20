@@ -118,7 +118,7 @@ define-command auto-pairs-surround -docstring 'auto-pairs-surround: enable autom
       printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-surround-delete %(auto-pairs-surround-delete-opener %-$opener- %-$closer-)"
     done
   }
-  hook window InsertEnd .* -group auto-pairs-surround-insert-end %{
+  hook window ModeChange insert:normal -group auto-pairs-surround-insert-end %{
     %sh{
       if [ "$kak_opt_auto_pairs_was_enabled" = true ]; then
         echo auto-pairs-enable

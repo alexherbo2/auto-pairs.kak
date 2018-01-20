@@ -50,8 +50,8 @@ define-command -hidden block-update-auto-pairs %{ %sh{
 }}
 
 hook global WinCreate .* %{
-  hook window InsertBegin .* block-update-auto-pairs
-  hook window NormalBegin .* block-update-auto-pairs
+  hook window ModeChange normal:insert block-update-auto-pairs
+  hook window ModeChange insert:normal block-update-auto-pairs
 }
 ```
 

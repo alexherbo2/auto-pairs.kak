@@ -58,7 +58,7 @@ define-command -hidden auto-pairs-delete-space %{ try %{
   execute-keys -no-hooks <del>
 }}
 
-define-command auto-pairs-enable -docstring 'auto-pairs-enable: enable automatic closing of pairs' %{
+define-command auto-pairs-enable -docstring 'auto-pairs-enable: Enable automatic closing of pairs' %{
   %sh{
     IFS='
 '
@@ -80,13 +80,13 @@ define-command auto-pairs-enable -docstring 'auto-pairs-enable: enable automatic
   set-option window auto_pairs_enabled yes
 }
 
-define-command auto-pairs-disable -docstring 'auto-pairs-disable: disable automatic closing of pairs' %{
+define-command auto-pairs-disable -docstring 'auto-pairs-disable: Disable automatic closing of pairs' %{
   remove-hooks window auto-pairs-insert
   remove-hooks window auto-pairs-delete
   set-option window auto_pairs_enabled no
 }
 
-define-command auto-pairs-toggle -docstring 'auto-pairs-toggle: toggle automatic closing of pairs' %{ %sh{
+define-command auto-pairs-toggle -docstring 'auto-pairs-toggle: Toggle automatic closing of pairs' %{ %sh{
   if [ "$kak_opt_auto_pairs_enabled" = true ]; then
     echo auto-pairs-disable
   else
@@ -102,7 +102,7 @@ define-command -hidden -params 2 auto-pairs-surround-delete-opener %{
   execute-keys -draft "<a-;>l<a-k>\Q%arg{2}<ret>d"
 }
 
-define-command auto-pairs-surround -docstring 'auto-pairs-surround: enable automatic closing of pairs on selection boundaries for the whole insert session' %{
+define-command auto-pairs-surround -docstring 'auto-pairs-surround: Enable automatic closing of pairs on selection boundaries for the whole insert session' %{
   %sh{
     IFS='
 '

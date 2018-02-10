@@ -58,17 +58,17 @@ hook global WinCreate .* %{
 Commands
 --------
 
-- `auto-pairs-enable`: enable automatic closing of pairs
-- `auto-pairs-disable`: disable automatic closing of pairs
-- `auto-pairs-toggle`: toggle automatic closing of pairs
-- `auto-pairs-surround`: enable automatic closing of pairs on selection boundaries for the whole insert session
+- `auto-pairs-enable`: Enable automatic closing of pairs
+- `auto-pairs-disable`: Disable automatic closing of pairs
+- `auto-pairs-toggle`: Toggle automatic closing of pairs
+- `auto-pairs-surround`: Enable automatic closing of pairs on selection boundaries for the whole insert session
 
 Options
 -------
 
-- `auto_pairs` `str-list`: list of pairs (default: `(,):{,}:[,]:<,>:",":',':<grave-quote>,<grave-quote>`)
-- `auto_pairs_enabled` `bool`: information about the way auto-pairs is active (read-only)
-- `auto_pairs_surround_enabled` `bool`: information about the way auto-pairs-surround is active (read-only)
+- `auto_pairs` `str-list`: List of pairs (Default: `(,):{,}:[,]:<,>:",":',':<grave-quote>,<grave-quote>`)
+- `auto_pairs_enabled` `bool`: Information about the way auto-pairs is active (Read-only)
+- `auto_pairs_surround_enabled` `bool`: Information about the way auto-pairs-surround is active (Read-only)
 
 [Kakoune]: http://kakoune.org
 [freenode/kakoune]: https://webchat.freenode.net?channels=kakoune

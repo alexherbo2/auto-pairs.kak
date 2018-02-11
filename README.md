@@ -1,4 +1,4 @@
-[![IRC][shields/kakoune/badge]][freenode/kakoune]
+[![IRC][IRC Badge]][IRC]
 
 [Kakoune][] extension to enable automatic closing of pairs.
 
@@ -71,5 +71,5 @@ Options
 - `auto_pairs_surround_enabled` `bool`: Information about the way auto-pairs-surround is active (Read-only)
 
 [Kakoune]: http://kakoune.org
-[freenode/kakoune]: https://webchat.freenode.net?channels=kakoune
-[shields/kakoune/badge]: https://img.shields.io/badge/IRC-%23kakoune-blue.svg
+[IRC]: https://webchat.freenode.net?channels=kakoune
+[IRC Badge]: https://img.shields.io/badge/IRC-%23kakoune-blue.svg

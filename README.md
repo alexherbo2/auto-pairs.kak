@@ -1,6 +1,7 @@
 Auto-pairs
 ==========
 
+[![Build Status][Badge]][Travis]
 [![IRC][IRC Badge]][IRC]
 
 ###### [Usage](#usage) | [Documentation](#commands) | [Contributing](CONTRIBUTING)
@@ -76,5 +77,7 @@ Options
 - `auto_pairs_surround_enabled` `bool`: Information about the way auto-pairs-surround is active (Read-only)
 
 [Kakoune]: http://kakoune.org
+[Travis]: https://travis-ci.org/alexherbo2/auto-pairs.kak
+[Badge]: https://travis-ci.org/alexherbo2/auto-pairs.kak.svg
 [IRC]: https://webchat.freenode.net?channels=kakoune
 [IRC Badge]: https://img.shields.io/badge/IRC-%23kakoune-blue.svg

@@ -1,6 +1,11 @@
+Auto-pairs
+==========
+
 [![IRC][IRC Badge]][IRC]
 
-[Kakoune][] extension to enable automatic closing of pairs.
+###### [Usage](#usage) | [Documentation](#commands) | [Contributing](CONTRIBUTING)
+
+> [Kakoune][] extension to enable automatic closing of pairs.
 
 Installation
 ------------

@@ -15,11 +15,6 @@ Installation
 ln --symbolic $PWD/rc $XDG_CONFIG_HOME/kak/autoload/auto-pairs
 ```
 
-Testing
--------
-
-To test, just type `run` in the [test/](test) directory.
-
 Usage
 -----
 

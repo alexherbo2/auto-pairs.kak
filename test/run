@@ -1,6 +1,7 @@
 #!/bin/sh
 
-auto_pairs=$(dirname $(dirname $(realpath $0)))
+root=$(git rev-parse --show-toplevel)
+name=$(basename $root .kak)
 
 kak=$(realpath $(which kak))
 
@@ -13,11 +14,11 @@ kakoune=$(git rev-parse --show-toplevel)
   exit 1
 }
 
-cp --recursive $auto_pairs/rc $kakoune/rc/auto-pairs
-cp --recursive $auto_pairs/test $kakoune/test/auto-pairs
+cp --recursive $root/rc $kakoune/rc/$name
+cp --recursive $root/test $kakoune/test/$name
 
 cd $kakoune/test
 
-./run auto-pairs
+./run $name
 
-rm --force --recursive $kakoune/{rc,test}/auto-pairs
+rm --force --recursive $kakoune/{rc,test}/$name

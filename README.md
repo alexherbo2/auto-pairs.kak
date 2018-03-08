@@ -1,5 +1,4 @@
-Auto-pairs
-==========
+# Auto-pairs
 
 [![Build Status][Badge]][Travis]
 [![IRC][IRC Badge]][IRC]
@@ -8,15 +7,13 @@ Auto-pairs
 
 > [Kakoune][] extension to enable automatic closing of pairs.
 
-Installation
-------------
+## Installation
 
 ``` sh
 ln --symbolic $PWD/rc $XDG_CONFIG_HOME/kak/autoload/auto-pairs
 ```
 
-Usage
------
+## Usage
 
 ``` kak
 hook global WinCreate .* %{
@@ -56,16 +53,14 @@ hook global WinCreate .* %{
 }
 ```
 
-Commands
---------
+## Commands
 
 - `auto-pairs-enable`: Enable automatic closing of pairs
 - `auto-pairs-disable`: Disable automatic closing of pairs
 - `auto-pairs-toggle`: Toggle automatic closing of pairs
 - `auto-pairs-surround`: Enable automatic closing of pairs on selection boundaries for the whole insert session
 
-Options
--------
+## Options
 
 - `auto_pairs` `str-list`: List of pairs (Default: `(,):{,}:[,]:<,>:",":',':<grave-quote>,<grave-quote>`)
 - `auto_pairs_enabled` `bool`: Information about the way auto-pairs is active (Read-only)

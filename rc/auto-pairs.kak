@@ -4,13 +4,20 @@ declare-option -docstring 'Information about the way auto-pairs-surround is acti
 declare-option -hidden bool auto_pairs_was_enabled
 
 define-command -hidden -params 2 auto-pairs-insert-opener %{ try %{
+  execute-keys -draft ";<a-K>\w<ret>"
   %sh{
-    if [ "$1" = "$2" ]; then
-      echo execute-keys -draft '2h<a-K>[[:alnum:]]<ret>'
+    if [[ "$1" == "$2" ]]; then
+      # Attempt to avoid auto insertion in don't
+      echo execute-keys -draft '";2h<a-K>\w<ret>"'
+      echo try %[
+      echo   execute-keys -draft '";<a-k>\Q%arg{2}<ret>d"'
+      echo ] catch %[
+      echo   execute-keys -no-hooks '"%arg{2}<a-;>h"'
+      echo ]
+    else
+      echo execute-keys -no-hooks '"%arg{2}<a-;>h"'
     fi
   }
-  execute-keys -draft ';<a-K>[[:alnum:]]<ret>'
-  execute-keys -no-hooks "%arg{2}<a-;>H"
 }}
 
 define-command -hidden -params 2 auto-pairs-insert-closer %{ try %{

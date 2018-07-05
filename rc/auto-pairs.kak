@@ -6,10 +6,10 @@ declare-option -hidden bool auto_pairs_was_enabled
 define-command -hidden -params 2 auto-pairs-insert-opener %{ try %{
   %sh{
     if [ "$1" = "$2" ]; then
-      echo execute-keys -draft '2h<a-K>[[:alnum:]]<ret>'
+      echo execute-keys -draft '2h<a-K>\w<ret>'
     fi
   }
-  execute-keys -draft ';<a-K>[[:alnum:]]<ret>'
+  execute-keys -draft ';<a-K>\w<ret>'
   execute-keys -no-hooks "%arg{2}<a-;>H"
 }}
 

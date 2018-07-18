@@ -28,7 +28,7 @@ map global user s :auto-pairs-surround<ret>
 ### Custom pairs
 
 ``` kak
-set-option -add global auto_pairs %(（,）:｛,｝:［,］:〈,〉:『,』:「,」)
+set-option -add global auto_pairs （ ） ｛ ｝ ［ ］ 〈 〉 『 』 「 」
 ```
 
 ### Status line integration
@@ -36,9 +36,9 @@ set-option -add global auto_pairs %(（,）:｛,｝:［,］:〈,〉:『,』:「,
 ``` kak
 set-option global modelinefmt '… %opt(block_auto_pairs) …'
 
-declare-option str block_auto_pairs
+declare-option -hidden str block_auto_pairs
 
-define-command -hidden block-update-auto-pairs %{ %sh{
+define-command -hidden block-update-auto-pairs %{ evaluate-commands %sh{
   if [ $kak_opt_auto_pairs_surround_enabled = true ]; then
     text=surround
   else
@@ -61,7 +61,7 @@ hook global WinCreate .* %{
 
 ## Options
 
-- `auto_pairs` `str-list`: List of pairs (Default: `(,):{,}:[,]:<,>:",":',':<grave-quote>,<grave-quote>`)
+- `auto_pairs` `str-list`: List of pairs (Default: `( ) { } [ ] < > '"' '"' <grave-quote> <grave-quote>`)
 - `auto_pairs_enabled` `bool`: Information about the way auto-pairs is active (Read-only)
 - `auto_pairs_surround_enabled` `bool`: Information about the way auto-pairs-surround is active (Read-only)
 

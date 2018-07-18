@@ -1,16 +1,16 @@
-declare-option -docstring 'List of pairs' str-list auto_pairs %((,):{,}:[,]:<,>:",":',':`,`)
+declare-option -docstring 'List of pairs' str-list auto_pairs ( ) { } [ ] < > '"' '"' ` `
 declare-option -docstring 'Information about the way auto-pairs is active' bool auto_pairs_enabled no
 declare-option -docstring 'Information about the way auto-pairs-surround is active' bool auto_pairs_surround_enabled no
 declare-option -hidden bool auto_pairs_was_enabled
 
 define-command -hidden -params 2 auto-pairs-insert-opener %{ try %{
-  %sh{
+  evaluate-commands %sh{
     if [ "$1" = "$2" ]; then
       echo execute-keys -draft '2h<a-K>\w<ret>'
     fi
   }
   execute-keys -draft ';<a-K>\w<ret>'
-  execute-keys -no-hooks "%arg{2}<a-;>H"
+  execute-keys "%arg{2}<a-;>H"
 }}
 
 define-command -hidden -params 2 auto-pairs-insert-closer %{ try %{
@@ -26,45 +26,125 @@ define-command -hidden -params 2 auto-pairs-delete-closer %{ try %{
 }}
 
 define-command -hidden auto-pairs-insert-new-line %{ try %{
-  %sh{
-    regex=$(printf '\Q%s\E' "$kak_opt_auto_pairs" | sed s/:/'\\E|\\Q'/g';'s/'<,>'/'<lt>,<gt>'/g';'s/,/'\\E\\n\\h*\\Q'/g)
-    printf '%s\n' "execute-keys -draft %(;KGl<a-k>$regex<ret>)"
+  evaluate-commands %sh{
+    regex=$(
+      eval "set -- $kak_opt_auto_pairs"
+      {
+        while [ "$1" ]; do
+          opener=$1
+          closer=$2
+          shift 2
+          printf '\\Q%s\\E\\n\\h*\\Q%s\\E\n' "$opener" "$closer"
+        done
+      } |
+      paste --serial --delimiters '|'
+    )
+    regex_keys=$(
+      echo "$regex" |
+      sed '
+        s/</{lt}/g
+        s/>/{gt}/g
+        s/{lt}/<lt>/g
+        s/{gt}/<gt>/g
+      '
+    )
+    printf '%s\n' "execute-keys -draft %(;KGl<a-k>$regex_keys<ret>)"
   }
   execute-keys <up><end><ret>
 }}
 
 define-command -hidden auto-pairs-delete-new-line %{ try %{
-  %sh{
-    regex=$(printf '\Q%s\E' "$kak_opt_auto_pairs" | sed s/:/'\\E|\\Q'/g';'s/'<,>'/'<lt>,<gt>'/g';'s/,/'\\E\\n\\h*\\Q'/g)
-    printf '%s\n' "execute-keys -draft %(;JGi<a-k>$regex<ret>)"
+  evaluate-commands %sh{
+    regex=$(
+      eval "set -- $kak_opt_auto_pairs"
+      {
+        while [ "$1" ]; do
+          opener=$1
+          closer=$2
+          shift 2
+          printf '\\Q%s\\E\\n\\h*\\Q%s\\E\n' "$opener" "$closer"
+        done
+      } |
+      paste --serial --delimiters '|'
+    )
+    regex_keys=$(
+      echo "$regex" |
+      sed '
+        s/</{lt}/g
+        s/>/{gt}/g
+        s/{lt}/<lt>/g
+        s/{gt}/<gt>/g
+      '
+    )
+    printf '%s\n' "execute-keys -draft %(;hJGi<a-k>$regex_keys<ret>)"
   }
-  execute-keys -no-hooks <del>
+  execute-keys <del>
   execute-keys -draft '<a-i><space>d'
 }}
 
 define-command -hidden auto-pairs-insert-space %{ try %{
-  %sh{
-    regex=$(printf '\Q%s\E' "$kak_opt_auto_pairs" | sed s/:/'\\E|\\Q'/g';'s/'<,>'/'<lt>,<gt>'/g';'s/,/'\\E\\h\\Q'/g)
-    printf '%s\n' "execute-keys -draft %(;2H<a-k>$regex<ret>)"
+  evaluate-commands %sh{
+    regex=$(
+      eval "set -- $kak_opt_auto_pairs"
+      {
+        while [ "$1" ]; do
+          opener=$1
+          closer=$2
+          shift 2
+          printf '\\Q%s\\E\\h\\Q%s\\E\n' "$opener" "$closer"
+        done
+      } |
+      paste --serial --delimiters '|'
+    )
+    regex_keys=$(
+      echo "$regex" |
+      sed '
+        s/</{lt}/g
+        s/>/{gt}/g
+        s/{lt}/<lt>/g
+        s/{gt}/<gt>/g
+      '
+    )
+    printf '%s\n' "execute-keys -draft %(;2H<a-k>$regex_keys<ret>)"
   }
-  execute-keys -no-hooks <space><left>
+  execute-keys <space><left>
 }}
 
 define-command -hidden auto-pairs-delete-space %{ try %{
-  %sh{
-    regex=$(printf '\Q%s\E' "$kak_opt_auto_pairs" | sed s/:/'\\E|\\Q'/g';'s/'<,>'/'<lt>,<gt>'/g';'s/,/'\\E\\h\\Q'/g)
-    printf '%s\n' "execute-keys -draft %(;l2H<a-k>$regex<ret>)"
+  evaluate-commands %sh{
+    regex=$(
+      eval "set -- $kak_opt_auto_pairs"
+      {
+        while [ "$1" ]; do
+          opener=$1
+          closer=$2
+          shift 2
+          printf '\\Q%s\\E\\h\\Q%s\\E\n' "$opener" "$closer"
+        done
+      } |
+      paste --serial --delimiters '|'
+    )
+    regex_keys=$(
+      echo "$regex" |
+      sed '
+        s/</{lt}/g
+        s/>/{gt}/g
+        s/{lt}/<lt>/g
+        s/{gt}/<gt>/g
+      '
+    )
+    printf '%s\n' "execute-keys -draft %(;l2H<a-k>$regex_keys<ret>)"
   }
-  execute-keys -no-hooks <del>
+  execute-keys <del>
 }}
 
 define-command auto-pairs-enable -docstring 'Enable automatic closing of pairs' %{
-  %sh{
-    IFS='
-'
-    for pair in $(printf %s "$kak_opt_auto_pairs" | tr : '\n'); do
-      opener=$(printf %s "$pair" | cut -d , -f 1)
-      closer=$(printf %s "$pair" | cut -d , -f 2)
+  evaluate-commands %sh{
+    eval "set -- $kak_opt_auto_pairs"
+    while [ "$1" ]; do
+      opener=$1
+      closer=$2
+      shift 2
       printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-insert %(auto-pairs-insert-opener %-$opener- %-$closer-)"
       printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-delete %(auto-pairs-delete-opener %-$opener- %-$closer-)"
       if [ "$opener" != "$closer" ]; then
@@ -86,7 +166,7 @@ define-command auto-pairs-disable -docstring 'Disable automatic closing of pairs
   set-option window auto_pairs_enabled no
 }
 
-define-command auto-pairs-toggle -docstring 'Toggle automatic closing of pairs' %{ %sh{
+define-command auto-pairs-toggle -docstring 'Toggle automatic closing of pairs' %{ evaluate-commands %sh{
   if [ "$kak_opt_auto_pairs_enabled" = true ]; then
     echo auto-pairs-disable
   else
@@ -103,23 +183,23 @@ define-command -hidden -params 2 auto-pairs-surround-delete-opener %{
 }
 
 define-command auto-pairs-surround -docstring 'Enable automatic closing of pairs on selection boundaries for the whole insert session' %{
-  %sh{
-    IFS='
-'
+  evaluate-commands %sh{
     if [ "$kak_opt_auto_pairs_enabled" = true ]; then
       echo set-option window auto_pairs_was_enabled yes
     else
       echo set-option window auto_pairs_was_enabled no
     fi
-    for pair in $(printf %s "$kak_opt_auto_pairs" | tr : '\n'); do
-      opener=$(printf %s "$pair" | cut -d , -f 1)
-      closer=$(printf %s "$pair" | cut -d , -f 2)
+    eval "set -- $kak_opt_auto_pairs"
+    while [ "$1" ]; do
+      opener=$1
+      closer=$2
+      shift 2
       printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-surround-insert %(auto-pairs-surround-insert-opener %-$opener- %-$closer-)"
       printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-surround-delete %(auto-pairs-surround-delete-opener %-$opener- %-$closer-)"
     done
   }
   hook window ModeChange insert:normal -group auto-pairs-surround-insert-end %{
-    %sh{
+    evaluate-commands %sh{
       if [ "$kak_opt_auto_pairs_was_enabled" = true ]; then
         echo auto-pairs-enable
       fi
@@ -131,5 +211,5 @@ define-command auto-pairs-surround -docstring 'Enable automatic closing of pairs
   }
   auto-pairs-disable
   set-option window auto_pairs_surround_enabled yes
-  execute-keys i
+  execute-keys -with-hooks i
 }

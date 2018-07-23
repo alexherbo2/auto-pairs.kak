@@ -5,10 +5,12 @@ install: |
   mkdir bin
   sudo apt-get install libncursesw5-dev --assume-yes
   sudo apt-get install asciidoc --assume-yes
+  sudo apt-get install realpath --assume-yes
   git clone git://github.com/mawww/kakoune repositories/github.com/mawww/kakoune
   cd repositories/github.com/mawww/kakoune/src
   make
   ln --symbolic $PWD/kak $root/bin
+  cd -
 
 script: |
   export PATH=$PWD/bin:$PATH

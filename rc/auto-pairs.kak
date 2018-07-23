@@ -26,116 +26,51 @@ define-command -hidden -params 2 auto-pairs-delete-closer %{ try %{
 }}
 
 define-command -hidden auto-pairs-insert-new-line %{ try %{
-  evaluate-commands %sh{
-    regex=$(
-      eval "set -- $kak_opt_auto_pairs"
-      {
-        while [ "$1" ]; do
-          opener=$1
-          closer=$2
-          shift 2
-          printf '\\Q%s\\E\\n\\h*\\Q%s\\E\n' "$opener" "$closer"
-        done
-      } |
-      paste --serial --delimiters '|'
-    )
-    regex_keys=$(
-      echo "$regex" |
-      sed '
-        s/</{lt}/g
-        s/>/{gt}/g
-        s/{lt}/<lt>/g
-        s/{gt}/<gt>/g
-      '
-    )
-    printf '%s\n' "execute-keys -draft %(;KGl<a-k>$regex_keys<ret>)"
-  }
+  auto-pairs-try-execute-keys '\\Q%s\\E\\n\\h*\\Q%s\\E' ';KGl<a-k>%s<ret>'
   execute-keys <up><end><ret>
 }}
 
 define-command -hidden auto-pairs-delete-new-line %{ try %{
-  evaluate-commands %sh{
-    regex=$(
-      eval "set -- $kak_opt_auto_pairs"
-      {
-        while [ "$1" ]; do
-          opener=$1
-          closer=$2
-          shift 2
-          printf '\\Q%s\\E\\n\\h*\\Q%s\\E\n' "$opener" "$closer"
-        done
-      } |
-      paste --serial --delimiters '|'
-    )
-    regex_keys=$(
-      echo "$regex" |
-      sed '
-        s/</{lt}/g
-        s/>/{gt}/g
-        s/{lt}/<lt>/g
-        s/{gt}/<gt>/g
-      '
-    )
-    printf '%s\n' "execute-keys -draft %(;hJGi<a-k>$regex_keys<ret>)"
-  }
+  auto-pairs-try-execute-keys '\\Q%s\\E\\n\\h*\\Q%s\\E' ';hJGi<a-k>%s<ret>'
   execute-keys <del>
   execute-keys -draft '<a-i><space>d'
 }}
 
 define-command -hidden auto-pairs-insert-space %{ try %{
-  evaluate-commands %sh{
-    regex=$(
-      eval "set -- $kak_opt_auto_pairs"
-      {
-        while [ "$1" ]; do
-          opener=$1
-          closer=$2
-          shift 2
-          printf '\\Q%s\\E\\h\\Q%s\\E\n' "$opener" "$closer"
-        done
-      } |
-      paste --serial --delimiters '|'
-    )
-    regex_keys=$(
-      echo "$regex" |
-      sed '
-        s/</{lt}/g
-        s/>/{gt}/g
-        s/{lt}/<lt>/g
-        s/{gt}/<gt>/g
-      '
-    )
-    printf '%s\n' "execute-keys -draft %(;2H<a-k>$regex_keys<ret>)"
-  }
+  auto-pairs-try-execute-keys '\\Q%s\\E\\h\\Q%s\\E' ';2H<a-k>%s<ret>'
   execute-keys <space><left>
 }}
 
 define-command -hidden auto-pairs-delete-space %{ try %{
-  evaluate-commands %sh{
-    regex=$(
-      eval "set -- $kak_opt_auto_pairs"
-      {
-        while [ "$1" ]; do
-          opener=$1
-          closer=$2
-          shift 2
-          printf '\\Q%s\\E\\h\\Q%s\\E\n' "$opener" "$closer"
-        done
-      } |
-      paste --serial --delimiters '|'
-    )
-    regex_keys=$(
-      echo "$regex" |
-      sed '
-        s/</{lt}/g
-        s/>/{gt}/g
-        s/{lt}/<lt>/g
-        s/{gt}/<gt>/g
-      '
-    )
-    printf '%s\n' "execute-keys -draft %(;l2H<a-k>$regex_keys<ret>)"
-  }
+  auto-pairs-try-execute-keys '\\Q%s\\E\\h\\Q%s\\E' ';l2H<a-k>%s<ret>'
   execute-keys <del>
+}}
+
+define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-commands %sh{
+  regex=$1
+  keys=$2
+  regex=$(
+    eval "set -- $kak_opt_auto_pairs"
+    {
+      while [ "$1" ]; do
+        opener=$1
+        closer=$2
+        shift 2
+        printf "$regex\n" "$opener" "$closer"
+      done
+    } |
+    paste --serial --delimiters '|'
+  )
+  regex_keys=$(
+    echo "$regex" |
+    sed '
+      s/</{lt}/g
+      s/>/{gt}/g
+      s/{lt}/<lt>/g
+      s/{gt}/<gt>/g
+    '
+  )
+  printf "execute-keys -draft %%($keys)\n" "$regex_keys"
 }}
 
 define-command auto-pairs-enable -docstring 'Enable automatic closing of pairs' %{

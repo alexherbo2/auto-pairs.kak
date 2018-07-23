@@ -8,9 +8,14 @@ define-command -hidden -params 2 auto-pairs-insert-opener %{ try %{
     if [ "$1" = "$2" ]; then
       echo execute-keys -draft '2h<a-K>\w<ret>'
     fi
+    echo execute-keys -draft '";<a-K>\w<ret>"'
+    echo execute-keys '"%arg{2}<a-;>"'
+    if echo "$kak_selection_desc" | grep -Eq '^([0-9]+)\.([0-9]+),\1\.\2$'; then
+      echo execute-keys '"h"'
+    else
+      echo execute-keys '"H"'
+    fi
   }
-  execute-keys -draft ';<a-K>\w<ret>'
-  execute-keys "%arg{2}<a-;>H"
 }}
 
 define-command -hidden -params 2 auto-pairs-insert-closer %{ try %{

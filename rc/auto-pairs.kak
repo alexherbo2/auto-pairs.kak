@@ -10,7 +10,7 @@ define-command -hidden -params 2 auto-pairs-insert-opener %{ try %{
     fi
     echo execute-keys -draft '";<a-K>\w<ret>"'
     echo execute-keys '"%arg{2}<a-;>"'
-    if echo "$kak_selections_desc" | grep -Eq '^(([0-9]+)\.([0-9]+),\2\.\3\s?)+$'; then
+    if echo "$kak_selection_desc" | grep -Eq '^([0-9]+)\.([0-9]+),\1\.\2$'; then
       echo execute-keys '"h"'
     else
       echo execute-keys '"H"'

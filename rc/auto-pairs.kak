@@ -8,9 +8,17 @@ define-command -hidden -params 2 auto-pairs-insert-opener %{ try %{
     if [ "$1" = "$2" ]; then
       echo execute-keys -draft '2h<a-K>\w<ret>'
     fi
+    echo execute-keys -draft '\;<a-K>\w<ret>'
+    IFS=, read anchor cursor <<EOF
+      $kak_selection_desc
+EOF
+    if test $anchor = $cursor; then
+      keys=h
+    else
+      keys=H
+    fi
+    printf 'execute-keys "%%arg{2}<a-;>%s"\n' "$keys"
   }
-  execute-keys -draft ';<a-K>\w<ret>'
-  execute-keys "%arg{2}<a-;>H"
 }}
 
 define-command -hidden -params 2 auto-pairs-insert-closer %{ try %{

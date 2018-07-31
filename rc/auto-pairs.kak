@@ -3,11 +3,18 @@ declare-option -docstring 'Information about the way auto-pairs is active' bool 
 declare-option -docstring 'Information about the way auto-pairs-surround is active' bool auto_pairs_surround_enabled no
 declare-option -hidden bool auto_pairs_was_enabled
 
+define-command -hidden -params 2 auto-pairs-insert-opener-closer %{
+  try %{
+    execute-keys -draft ";<a-K>\Q%arg(1)<ret>"
+    execute-keys -draft '2h<a-K>\w<ret>'
+    auto-pairs-insert-opener %arg(@)
+  } catch %{
+    auto-pairs-insert-closer %arg(@)
+  }
+}
+
 define-command -hidden -params 2 auto-pairs-insert-opener %{ try %{
   evaluate-commands %sh{
-    if [ "$1" = "$2" ]; then
-      echo execute-keys -draft '2h<a-K>\w<ret>'
-    fi
     echo execute-keys -draft '\;<a-K>\w<ret>'
     IFS=, read anchor cursor <<EOF
       $kak_selection_desc
@@ -23,6 +30,10 @@ EOF
 
 define-command -hidden -params 2 auto-pairs-insert-closer %{ try %{
   execute-keys -draft ";<a-k>\Q%arg(2)<ret>d"
+}}
+
+define-command -hidden -params 2 auto-pairs-delete-opener-closer %{ try %{
+  auto-pairs-delete-opener %arg(@)
 }}
 
 define-command -hidden -params 2 auto-pairs-delete-opener %{ try %{
@@ -88,9 +99,12 @@ define-command auto-pairs-enable -docstring 'Enable automatic closing of pairs' 
       opener=$1
       closer=$2
       shift 2
-      printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-insert %(auto-pairs-insert-opener %-$opener- %-$closer-)"
-      printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-delete %(auto-pairs-delete-opener %-$opener- %-$closer-)"
-      if [ "$opener" != "$closer" ]; then
+      if [ "$opener" = "$closer" ]; then
+        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-insert %(auto-pairs-insert-opener-closer %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-delete %(auto-pairs-delete-opener-closer %-$opener- %-$closer-)"
+      else
+        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-insert %(auto-pairs-insert-opener %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-delete %(auto-pairs-delete-opener %-$opener- %-$closer-)"
         printf '%s\n' "hook window InsertChar %-\Q$closer- -group auto-pairs-insert %(auto-pairs-insert-closer %-$opener- %-$closer-)"
         printf '%s\n' "hook window InsertDelete %-\Q$closer- -group auto-pairs-delete %(auto-pairs-delete-closer %-$opener- %-$closer-)"
       fi

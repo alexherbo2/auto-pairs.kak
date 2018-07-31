@@ -17,20 +17,20 @@ EOF
     else
       keys=H
     fi
-    printf 'execute-keys "%%arg{2}<a-;>%s"\n' "$keys"
+    printf 'execute-keys "%%arg(2)<a-;>%s"\n' "$keys"
   }
 }}
 
 define-command -hidden -params 2 auto-pairs-insert-closer %{ try %{
-  execute-keys -draft ";<a-k>\Q%arg{2}<ret>d"
+  execute-keys -draft ";<a-k>\Q%arg(2)<ret>d"
 }}
 
 define-command -hidden -params 2 auto-pairs-delete-opener %{ try %{
-  execute-keys -draft ";<a-k>\Q%arg{2}<ret>d"
+  execute-keys -draft ";<a-k>\Q%arg(2)<ret>d"
 }}
 
 define-command -hidden -params 2 auto-pairs-delete-closer %{ try %{
-  execute-keys -draft "h<a-k>\Q%arg{1}<ret>d"
+  execute-keys -draft "h<a-k>\Q%arg(1)<ret>d"
 }}
 
 define-command -hidden auto-pairs-insert-new-line %{ try %{
@@ -118,11 +118,11 @@ define-command auto-pairs-toggle -docstring 'Toggle automatic closing of pairs' 
 }}
 
 define-command -hidden -params 2 auto-pairs-surround-insert-opener %{
-  execute-keys -draft "<a-;>a%arg{2}"
+  execute-keys -draft "<a-;>a%arg(2)"
 }
 
 define-command -hidden -params 2 auto-pairs-surround-delete-opener %{
-  execute-keys -draft "<a-;>l<a-k>\Q%arg{2}<ret>d"
+  execute-keys -draft "<a-;>l<a-k>\Q%arg(2)<ret>d"
 }
 
 define-command auto-pairs-surround -docstring 'Enable automatic closing of pairs on selection boundaries for the whole insert session' %{

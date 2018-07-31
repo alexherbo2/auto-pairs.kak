@@ -1,2 +1,2 @@
-source "%val{runtime}/rc/auto-pairs/auto-pairs.kak"
+source "%val(runtime)/rc/auto-pairs/auto-pairs.kak"
 auto-pairs-enable

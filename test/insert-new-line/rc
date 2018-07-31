@@ -1,5 +1,5 @@
-source "%val{runtime}/rc/auto-pairs/auto-pairs.kak"
-source "%val{runtime}/colors/default.kak"
-source "%val{runtime}/rc/core/c-family.kak"
+source "%val(runtime)/rc/auto-pairs/auto-pairs.kak"
+source "%val(runtime)/colors/default.kak"
+source "%val(runtime)/rc/core/c-family.kak"
 auto-pairs-enable
 set-option buffer filetype cpp

@@ -5,7 +5,7 @@
 
 ###### [Usage](#usage) | [Documentation](#commands) | [Contributing](CONTRIBUTING)
 
-> [Kakoune][] extension to enable automatic closing of pairs.
+> [Kakoune] extension to enable automatic closing of pairs.
 
 ## Installation
 

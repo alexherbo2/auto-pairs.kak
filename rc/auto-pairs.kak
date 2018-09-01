@@ -1,4 +1,5 @@
 declare-option -docstring 'List of pairs' str-list auto_pairs ( ) { } [ ] < > '"' '"' <single-quote> <single-quote> ` `
+declare-option -docstring 'List of pairs' str-list auto_pairs_surround %opt(auto_pairs)
 declare-option -docstring 'Information about the way auto-pairs is active' bool auto_pairs_enabled no
 declare-option -docstring 'Information about the way auto-pairs-surround is active' bool auto_pairs_surround_enabled no
 declare-option -hidden bool auto_pairs_was_enabled
@@ -146,7 +147,7 @@ define-command auto-pairs-surround -docstring 'Enable automatic closing of pairs
     else
       echo set-option window auto_pairs_was_enabled no
     fi
-    eval "set -- $kak_opt_auto_pairs"
+    eval "set -- $kak_opt_auto_pairs_surround"
     while [ "$1" ]; do
       [ "$1" = '<single-quote>' ] && opener="'" || opener=$1
       [ "$2" = '<single-quote>' ] && closer="'" || closer=$2

@@ -25,10 +25,22 @@ hook global WinCreate .* %{
 map global user s :auto-pairs-surround<ret>
 ```
 
+``` kak
+map global user S ':auto-pairs-surround _ _ * *<ret>'
+```
+
 ### Custom pairs
 
 ``` kak
 set-option -add global auto_pairs （ ） ｛ ｝ ［ ］ 〈 〉 『 』 「 」
+```
+
+### Per file-type settings
+
+``` kak
+hook global WinSetOption filetype=markdown %{
+  set-option -add buffer auto_pairs_surround _ _ * *
+}
 ```
 
 ### Status line integration

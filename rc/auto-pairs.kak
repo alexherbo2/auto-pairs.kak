@@ -140,21 +140,25 @@ define-command -hidden -params 2 auto-pairs-surround-delete-opener %{
   execute-keys -draft "<a-;>l<a-k>\Q%arg(2)<ret>d"
 }
 
-define-command auto-pairs-surround -docstring 'Enable automatic closing of pairs on selection boundaries for the whole insert session' %{
+define-command auto-pairs-surround -params .. -docstring 'Enable automatic closing of pairs on selection boundaries for the whole insert session' %{
   evaluate-commands %sh{
     if [ "$kak_opt_auto_pairs_enabled" = true ]; then
       echo set-option window auto_pairs_was_enabled yes
     else
       echo set-option window auto_pairs_was_enabled no
     fi
+    proceed() {
+      while [ "$1" ]; do
+        [ "$1" = '<single-quote>' ] && opener="'" || opener=$1
+        [ "$2" = '<single-quote>' ] && closer="'" || closer=$2
+        shift 2
+        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-surround-insert %(auto-pairs-surround-insert-opener %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-surround-delete %(auto-pairs-surround-delete-opener %-$opener- %-$closer-)"
+      done
+    }
+    proceed "$@"
     eval "set -- $kak_opt_auto_pairs_surround"
-    while [ "$1" ]; do
-      [ "$1" = '<single-quote>' ] && opener="'" || opener=$1
-      [ "$2" = '<single-quote>' ] && closer="'" || closer=$2
-      shift 2
-      printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-surround-insert %(auto-pairs-surround-insert-opener %-$opener- %-$closer-)"
-      printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-surround-delete %(auto-pairs-surround-delete-opener %-$opener- %-$closer-)"
-    done
+    proceed "$@"
   }
   hook window ModeChange insert:normal -group auto-pairs-surround-insert-end %{
     evaluate-commands %sh{

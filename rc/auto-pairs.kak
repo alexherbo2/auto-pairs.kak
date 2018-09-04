@@ -147,7 +147,7 @@ define-command auto-pairs-surround -params .. -docstring 'Enable automatic closi
     else
       echo set-option window auto_pairs_was_enabled no
     fi
-    proceed() {
+    iterate() {
       while [ "$1" ]; do
         [ "$1" = '<single-quote>' ] && opener="'" || opener=$1
         [ "$2" = '<single-quote>' ] && closer="'" || closer=$2
@@ -156,8 +156,8 @@ define-command auto-pairs-surround -params .. -docstring 'Enable automatic closi
         printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-surround-delete %(auto-pairs-surround-delete-opener %-$opener- %-$closer-)"
       done
     }
-    eval "proceed $kak_opt_auto_pairs_surround"
-    proceed "$@"
+    eval "iterate $kak_opt_auto_pairs_surround"
+    iterate "$@"
   }
   hook window ModeChange insert:normal -group auto-pairs-surround-insert-end %{
     evaluate-commands %sh{

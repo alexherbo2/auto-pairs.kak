@@ -156,8 +156,7 @@ define-command auto-pairs-surround -params .. -docstring 'Enable automatic closi
         printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-surround-delete %(auto-pairs-surround-delete-opener %-$opener- %-$closer-)"
       done
     }
-    proceed "$@"
-    eval "set -- $kak_opt_auto_pairs_surround"
+    eval "proceed $kak_opt_auto_pairs_surround"
     proceed "$@"
   }
   hook window ModeChange insert:normal -group auto-pairs-surround-insert-end %{

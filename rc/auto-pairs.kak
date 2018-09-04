@@ -147,6 +147,8 @@ define-command auto-pairs-surround -params .. -docstring 'Enable automatic closi
     else
       echo set-option window auto_pairs_was_enabled no
     fi
+    # Issue: No way to access %arg(@) from shell
+    # https://github.com/mawww/kakoune/issues/2353
     iterate() {
       while [ "$1" ]; do
         [ "$1" = '<single-quote>' ] && opener="'" || opener=$1

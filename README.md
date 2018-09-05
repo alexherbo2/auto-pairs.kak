@@ -78,8 +78,13 @@ hook global WinCreate .* %{
 - `auto_pairs_enabled` `bool`: Information about the way auto-pairs is active (Read-only)
 - `auto_pairs_surround_enabled` `bool`: Information about the way auto-pairs-surround is active (Read-only)
 
+## Credits
+
+Thanks to [maximbaz] for all the good suggestions he did on the extension.
+
 [Kakoune]: http://kakoune.org
 [Travis]: https://travis-ci.org/alexherbo2/auto-pairs.kak
 [Badge]: https://travis-ci.org/alexherbo2/auto-pairs.kak.svg
 [IRC]: https://webchat.freenode.net?channels=kakoune
 [IRC Badge]: https://img.shields.io/badge/IRC-%23kakoune-blue.svg
+[maximbaz]: https://github.com/maximbaz

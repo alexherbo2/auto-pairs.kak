@@ -8,7 +8,8 @@ define-command -hidden -params 2 auto-pairs-insert-opener-closer %{
   try %{
     execute-keys -draft ";<a-K>\Q%arg(1)<ret>"
     execute-keys -draft '2h<a-K>\w<ret>'
-    auto-pairs-insert-opener %arg(@)
+    execute-keys -draft -save-regs '' ";<a-/>\Q%arg(1)\E+<ret>y"
+    auto-pairs-insert-opener %arg(1) %val(main_reg_dquote)
   } catch %{
     auto-pairs-insert-closer %arg(@)
   }
@@ -21,9 +22,9 @@ define-command -hidden -params 2 auto-pairs-insert-opener %{ try %{
       $kak_selection_desc
 EOF
     if test $anchor = $cursor; then
-      keys=h
+      keys=${#2}h
     else
-      keys=H
+      keys=${#2}H
     fi
     printf 'execute-keys "%%arg(2)<a-;>%s"\n' "$keys"
   }

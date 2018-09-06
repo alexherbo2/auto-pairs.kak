@@ -3,6 +3,8 @@
 [![Build Status][Badge]][Travis]
 [![IRC][IRC Badge]][IRC]
 
+![auto-pairs-demo](https://user-images.githubusercontent.com/1177900/45157513-ac396280-b1e1-11e8-8c2b-c2fa3adcd5c2.gif)
+
 ###### [Usage](#usage) | [Documentation](#commands) | [Contributing](CONTRIBUTING)
 
 > [Kakoune] extension to enable automatic closing of pairs.

@@ -7,6 +7,8 @@
 
 > [Kakoune] extension to enable automatic closing of pairs.
 
+![Demo]
+
 ## Installation
 
 ``` sh
@@ -82,6 +84,7 @@ hook global WinCreate .* %{
 
 Thanks to [maximbaz] for all the good suggestions he did on the extension.
 
+[Demo]: images/demo.gif
 [Kakoune]: http://kakoune.org
 [Travis]: https://travis-ci.org/alexherbo2/auto-pairs.kak
 [Badge]: https://travis-ci.org/alexherbo2/auto-pairs.kak.svg

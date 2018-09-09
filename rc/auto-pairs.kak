@@ -73,7 +73,7 @@ define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-command
   regex=$(
     eval "set -- $kak_opt_auto_pairs"
     {
-      while [ "$1" ]; do
+      while test $# -ge 2; do
         opener=$1
         closer=$2
         shift 2
@@ -97,7 +97,7 @@ define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-command
 define-command auto-pairs-enable -docstring 'Enable automatic closing of pairs' %{
   evaluate-commands %sh{
     eval "set -- $kak_opt_auto_pairs"
-    while [ "$1" ]; do
+    while test $# -ge 2; do
       [ "$1" = '<single-quote>' ] && opener="'" || opener=$1
       [ "$2" = '<single-quote>' ] && closer="'" || closer=$2
       shift 2
@@ -151,7 +151,7 @@ define-command auto-pairs-surround -params .. -docstring 'Enable automatic closi
     # Issue: No way to access %arg(@) from shell
     # https://github.com/mawww/kakoune/issues/2353
     iterate() {
-      while [ "$1" ]; do
+      while test $# -ge 2; do
         [ "$1" = '<single-quote>' ] && opener="'" || opener=$1
         [ "$2" = '<single-quote>' ] && closer="'" || closer=$2
         shift 2

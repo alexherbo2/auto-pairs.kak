@@ -11,8 +11,10 @@
 
 ## Installation
 
-``` sh
-ln --symbolic $PWD/rc $XDG_CONFIG_HOME/kak/autoload/auto-pairs
+### [Pathogen]
+
+``` kak
+pathogen-infect /home/user/repositories/github.com/alexherbo2/auto-pairs.kak
 ```
 
 ## Usage
@@ -90,4 +92,5 @@ Thanks to [maximbaz] for all the good suggestions he did on the extension.
 [Badge]: https://travis-ci.org/alexherbo2/auto-pairs.kak.svg
 [IRC]: https://webchat.freenode.net?channels=kakoune
 [IRC Badge]: https://img.shields.io/badge/IRC-%23kakoune-blue.svg
+[Pathogen]: https://github.com/alexherbo2/pathogen.kak
 [maximbaz]: https://github.com/maximbaz

@@ -86,6 +86,12 @@ hook global WinCreate .* %{
 
 Thanks to [maximbaz] for all the good suggestions he did on the extension.
 
+## Collaborators
+
+_Push access to the repository_
+
+- [maximbaz] (2018-10-06)
+
 [Demo]: images/demo.gif
 [Kakoune]: http://kakoune.org
 [Travis]: https://travis-ci.org/alexherbo2/auto-pairs.kak

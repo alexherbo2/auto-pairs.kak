@@ -4,7 +4,7 @@ declare-option -docstring 'Whether auto-pairs is active' bool auto_pairs_enabled
 declare-option -docstring 'Whether auto-pairs-surround is active' bool auto_pairs_surround_enabled no
 declare-option -hidden bool auto_pairs_was_enabled
 
-define-command -hidden -params 2 auto-pairs-insert-opener-closer %{
+define-command -hidden -params 2 auto-pairs-insert-opener-closer %{ evaluate-commands -save-regs '"' %{
   try %{
     execute-keys -draft ";<a-K>\Q%arg(1)<ret>"
     execute-keys -draft '2h<a-K>\w<ret>'
@@ -13,7 +13,7 @@ define-command -hidden -params 2 auto-pairs-insert-opener-closer %{
   } catch %{
     auto-pairs-insert-closer %arg(@)
   }
-}
+}}
 
 define-command -hidden -params 2 auto-pairs-insert-opener %{ try %{
   evaluate-commands %sh{

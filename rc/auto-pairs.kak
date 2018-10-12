@@ -72,14 +72,12 @@ define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-command
   keys=$2
   regex=$(
     eval "set -- $kak_opt_auto_pairs"
-    {
-      while test $# -ge 2; do
-        opener=$1
-        closer=$2
-        shift 2
-        printf "$regex\n" "$opener" "$closer"
-      done
-    } |
+    while test $# -ge 2; do
+      opener=$1
+      closer=$2
+      shift 2
+      printf "$regex\n" "$opener" "$closer"
+    done |
     paste --serial --delimiters '|'
   )
   regex_keys=$(

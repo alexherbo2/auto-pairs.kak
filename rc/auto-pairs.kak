@@ -139,6 +139,24 @@ define-command -hidden -params 2 auto-pairs-surround-delete-opener %{
   execute-keys -draft "<a-;>l<a-k>\Q%arg(2)<ret>d"
 }
 
+define-command -hidden auto-pairs-surround-insert-space %{ try %{
+  auto-pairs-try-execute-keys '\\Q%s\\E.+\\Q%s\\E' '<a-?>\H<ret><a-:>?\H<ret><a-k>%s<ret>'
+  try %{
+    execute-keys -draft 'Zh<a-i><space>yz<a-:>l<a-i><space>R'
+  } catch %{
+    execute-keys -draft 'a<space>'
+  }
+}}
+
+define-command -hidden auto-pairs-surround-delete-space %{ try %{
+  auto-pairs-try-execute-keys '\\Q%s\\E.+\\Q%s\\E' '<a-?>\H<ret><a-:>?\H<ret><a-k>%s<ret>'
+  try %{
+    execute-keys -draft 'Zh<a-i><space>yz<a-:>l<a-i><space>R'
+  } catch %{
+    execute-keys -draft '<a-:>l<a-i><space>d'
+  }
+}}
+
 define-command auto-pairs-surround -params .. -docstring 'Enable automatic closing of pairs on selection boundaries for the whole insert session' %{
   evaluate-commands %sh{
     if [ "$kak_opt_auto_pairs_enabled" = true ]; then
@@ -160,6 +178,8 @@ define-command auto-pairs-surround -params .. -docstring 'Enable automatic closi
     eval "iterate $kak_opt_auto_pairs_surround"
     iterate "$@"
   }
+  hook window InsertChar \h -group auto-pairs-surround-insert auto-pairs-surround-insert-space
+  hook window InsertDelete \h -group auto-pairs-surround-delete auto-pairs-surround-delete-space
   hook -once window ModeChange insert:normal %{
     evaluate-commands %sh{
       if [ "$kak_opt_auto_pairs_was_enabled" = true ]; then

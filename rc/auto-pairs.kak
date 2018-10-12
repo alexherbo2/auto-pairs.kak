@@ -160,7 +160,7 @@ define-command auto-pairs-surround -params .. -docstring 'Enable automatic closi
     eval "iterate $kak_opt_auto_pairs_surround"
     iterate "$@"
   }
-  hook window ModeChange insert:normal -group auto-pairs-surround-insert-end %{
+  hook -once window ModeChange insert:normal %{
     evaluate-commands %sh{
       if [ "$kak_opt_auto_pairs_was_enabled" = true ]; then
         echo auto-pairs-enable
@@ -168,7 +168,6 @@ define-command auto-pairs-surround -params .. -docstring 'Enable automatic closi
     }
     remove-hooks window auto-pairs-surround-insert
     remove-hooks window auto-pairs-surround-delete
-    remove-hooks window auto-pairs-surround-insert-end
     set-option window auto_pairs_surround_enabled no
   }
   auto-pairs-disable

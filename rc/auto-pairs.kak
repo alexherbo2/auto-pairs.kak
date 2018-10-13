@@ -30,9 +30,17 @@ EOF
   }
 }}
 
-define-command -hidden -params 2 auto-pairs-insert-closer %{ try %{
-  execute-keys -draft ";<a-k>\Q%arg(2)<ret>d"
-}}
+define-command -hidden -params 2 auto-pairs-insert-closer %{ evaluate-commands -save-regs '"^' %{ try %{
+  execute-keys -draft -save-regs '' "hF%arg(2)<a-k>\A\Q%arg(2)\E\s*\Q%arg(2)\E\z<ret>Z<a-;>;dz<a-:>lZ"
+  try %{
+    execute-keys -draft '<a-k>..<ret>'
+    execute-keys '<a-;><a-z>u'
+  } catch %{
+    execute-keys '<a-;>z'
+  }
+  # Hide message from the status line
+  echo
+}}}
 
 define-command -hidden -params 2 auto-pairs-delete-opener-closer %{ try %{
   auto-pairs-delete-opener %arg(@)

@@ -63,15 +63,39 @@ define-command -hidden auto-pairs-delete-new-line %{ try %{
   execute-keys -draft '<a-i><space>d'
 }}
 
-define-command -hidden auto-pairs-insert-space %{ try %{
-  auto-pairs-try-execute-keys '\\Q%s\\E\\h\\Q%s\\E' ';2H<a-k>%s<ret>'
-  execute-keys <space><left>
-}}
+define-command -hidden auto-pairs-insert-space %[ evaluate-commands -save-regs '"KL' %[ try %[
+  auto-pairs-try-execute-keys '\\Q%s\\E\\h+\\Q%s\\E' ';<a-?>\H<ret><a-:>H?\H<ret><a-k>%s<ret>'
+  execute-keys -draft -save-regs '' ';h{<space>y'
+  # Length
+  set-register L %sh(echo ${#kak_main_reg_dquote})
+  # Key
+  try %[ execute-keys -draft '<a-k>..<ret>'
+    set-register K H
+  ] catch %[
+    set-register K h
+  ]
+  try %(execute-keys -draft ';}<space>d')
+  execute-keys "<c-r>""<a-;>%reg(L)%reg(K)"
+]]]
 
-define-command -hidden auto-pairs-delete-space %{ try %{
-  auto-pairs-try-execute-keys '\\Q%s\\E\\h\\Q%s\\E' ';l2H<a-k>%s<ret>'
-  execute-keys <del>
-}}
+define-command -hidden auto-pairs-delete-space %[ evaluate-commands -save-regs '"KL' %[ try %[
+  auto-pairs-try-execute-keys '\\Q%s\\E\\h+\\Q%s\\E' ';<a-?>\H<ret><a-:>H?\H<ret><a-k>%s<ret>'
+  try %[
+    execute-keys -draft -save-regs '' ';h{<space>y'
+    # Length
+    set-register L %sh(echo ${#kak_main_reg_dquote})
+    # Key
+    try %[ execute-keys -draft '<a-k>..<ret>'
+      set-register K H
+    ] catch %[
+      set-register K h
+    ]
+    try %(execute-keys -draft ';}<space>d')
+    execute-keys "<c-r>""<a-;>%reg(L)%reg(K)"
+  ] catch %[
+    execute-keys '<del>'
+  ]
+]]]
 
 define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-commands %sh{
   regex=$1

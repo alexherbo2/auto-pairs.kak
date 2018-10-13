@@ -16,17 +16,15 @@ define-command -hidden -params 2 auto-pairs-insert-opener-closer %{ evaluate-com
 }}
 
 define-command -hidden -params 2 auto-pairs-insert-opener %{ try %{
-  evaluate-commands %sh{
-    echo execute-keys -draft '\;<a-K>\w<ret>'
-    IFS=, read anchor cursor <<EOF
-      $kak_selection_desc
-EOF
-    if test $anchor = $cursor; then
-      keys=${#2}h
-    else
-      keys=${#2}H
-    fi
-    printf 'execute-keys "%%arg(2)<a-;>%s"\n' "$keys"
+  execute-keys -draft ';<a-K>\w<ret>'
+  execute-keys %arg(2)
+  # Length
+  set-register L %sh(echo ${#2})
+  try %{
+    execute-keys -draft '<a-k>..<ret>'
+    execute-keys "<a-;>%reg(L)H"
+  } catch %{
+    execute-keys "<a-;>%reg(L)h"
   }
 }}
 

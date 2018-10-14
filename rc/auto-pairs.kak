@@ -1,4 +1,4 @@
-declare-option -docstring 'List of pairs' str-list auto_pairs ( ) { } [ ] < > '"' '"' <single-quote> <single-quote> ` `
+declare-option -docstring 'List of pairs' str-list auto_pairs ( ) { } [ ] < > '"' '"' "'" "'" ` `
 declare-option -docstring 'List of pairs' str-list auto_pairs_surround %opt(auto_pairs)
 declare-option -docstring 'Whether auto-pairs is active' bool auto_pairs_enabled no
 declare-option -docstring 'Whether auto-pairs-surround is active' bool auto_pairs_surround_enabled no
@@ -126,8 +126,8 @@ define-command auto-pairs-enable -docstring 'Enable automatic closing of pairs' 
   evaluate-commands %sh{
     eval "set -- $kak_opt_auto_pairs"
     while test $# -ge 2; do
-      [ "$1" = '<single-quote>' ] && opener="'" || opener=$1
-      [ "$2" = '<single-quote>' ] && closer="'" || closer=$2
+      opener=$1
+      closer=$2
       shift 2
       if [ "$opener" = "$closer" ]; then
         printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-insert %(auto-pairs-insert-opener-closer %-$opener- %-$closer-)"
@@ -198,8 +198,8 @@ define-command auto-pairs-surround -params .. -docstring 'Enable automatic closi
     # https://github.com/mawww/kakoune/issues/2353
     iterate() {
       while test $# -ge 2; do
-        [ "$1" = '<single-quote>' ] && opener="'" || opener=$1
-        [ "$2" = '<single-quote>' ] && closer="'" || closer=$2
+        opener=$1
+        closer=$2
         shift 2
         printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-surround-insert %(auto-pairs-surround-insert-opener %-$opener- %-$closer-)"
         printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-surround-delete %(auto-pairs-surround-delete-opener %-$opener- %-$closer-)"

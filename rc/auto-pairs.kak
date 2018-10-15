@@ -108,7 +108,9 @@ define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-command
       shift 2
       printf "$regex\n" "$opener" "$closer"
     done |
-    paste --serial --delimiters '|'
+    # --serial
+    # --delimiters
+    paste -s -d '|'
   )
   regex_keys=$(
     echo "$regex" |

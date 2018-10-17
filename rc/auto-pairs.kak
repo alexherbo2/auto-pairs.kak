@@ -53,18 +53,18 @@ define-command -hidden -params 2 auto-pairs-delete-closer %{ try %{
 }}
 
 define-command -hidden auto-pairs-insert-new-line %{ try %{
-  auto-pairs-try-execute-keys '\Q${opener}\E\n\h*\Q${closer}\E' ';KGl<a-k><ret>'
+  auto-pairs-try-execute-keys '\Q${opener}\E\n\h*\Q${closer}\E' ';KGl'
   execute-keys <up><end><ret>
 }}
 
 define-command -hidden auto-pairs-delete-new-line %{ try %{
-  auto-pairs-try-execute-keys '\Q${opener}\E\n\h*\Q${closer}\E' ';hJGi<a-k><ret>'
+  auto-pairs-try-execute-keys '\Q${opener}\E\n\h*\Q${closer}\E' ';hJGi'
   execute-keys <del>
   execute-keys -draft '<a-i><space>d'
 }}
 
 define-command -hidden auto-pairs-insert-space %[ evaluate-commands -save-regs '"KL' %[ try %[
-  auto-pairs-try-execute-keys '\Q${opener}\E\h+\Q${closer}\E' ';<a-?>\H<ret><a-:>H?\H<ret><a-k><ret>'
+  auto-pairs-try-execute-keys '\Q${opener}\E\h+\Q${closer}\E' ';<a-?>\H<ret><a-:>H?\H<ret>'
   execute-keys -draft -save-regs '' ';h{<space>y'
   # Length
   set-register L %sh(echo ${#kak_main_reg_dquote})
@@ -79,7 +79,7 @@ define-command -hidden auto-pairs-insert-space %[ evaluate-commands -save-regs '
 ]]]
 
 define-command -hidden auto-pairs-delete-space %[ evaluate-commands -save-regs '"KL' %[ try %[
-  auto-pairs-try-execute-keys '\Q${opener}\E\h+\Q${closer}\E' ';<a-?>\H<ret><a-:>H?\H<ret><a-k><ret>'
+  auto-pairs-try-execute-keys '\Q${opener}\E\h+\Q${closer}\E' ';<a-?>\H<ret><a-:>H?\H<ret>'
   try %[
     execute-keys -draft -save-regs '' ';h{<space>y'
     # Length
@@ -97,7 +97,8 @@ define-command -hidden auto-pairs-delete-space %[ evaluate-commands -save-regs '
   ]
 ]]]
 
-define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-commands -save-regs '/' %{
+define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-commands -draft -save-regs '/' %{
+  execute-keys %arg(2)
   set-register / %sh{
     regex=$1
     eval "set -- $kak_opt_auto_pairs"
@@ -111,7 +112,7 @@ define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-command
     # --delimiters
     paste -s -d '|'
   }
-  execute-keys -draft %arg(2)
+  execute-keys '<a-k><ret>'
 }}
 
 define-command auto-pairs-enable -docstring 'Enable automatic closing of pairs' %{
@@ -162,7 +163,7 @@ define-command -hidden -params 2 auto-pairs-surround-delete-opener %{
 }
 
 define-command -hidden auto-pairs-surround-insert-space %{ try %{
-  auto-pairs-try-execute-keys '\Q${opener}\E.+\Q${closer}\E' '<a-?>\H<ret><a-:>?\H<ret><a-k><ret>'
+  auto-pairs-try-execute-keys '\Q${opener}\E.+\Q${closer}\E' '<a-?>\H<ret><a-:>?\H<ret>'
   try %{
     execute-keys -draft 'Zh<a-i><space>yz<a-:>l<a-i><space>R'
   } catch %{
@@ -171,7 +172,7 @@ define-command -hidden auto-pairs-surround-insert-space %{ try %{
 }}
 
 define-command -hidden auto-pairs-surround-delete-space %{ try %{
-  auto-pairs-try-execute-keys '\Q${opener}\E.+\Q${closer}\E' '<a-?>\H<ret><a-:>?\H<ret><a-k><ret>'
+  auto-pairs-try-execute-keys '\Q${opener}\E.+\Q${closer}\E' '<a-?>\H<ret><a-:>?\H<ret>'
   try %{
     execute-keys -draft 'Zh<a-i><space>yz<a-:>l<a-i><space>R'
   } catch %{

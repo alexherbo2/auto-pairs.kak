@@ -53,18 +53,18 @@ define-command -hidden -params 2 auto-pairs-delete-closer %{ try %{
 }}
 
 define-command -hidden auto-pairs-insert-new-line %{ try %{
-  auto-pairs-try-execute-keys '\\Q${opener}\\E\\n\\h*\\Q${closer}\\E' ';KGl<a-k><ret>'
+  auto-pairs-try-execute-keys '\Q${opener}\E\n\h*\Q${closer}\E' ';KGl<a-k><ret>'
   execute-keys <up><end><ret>
 }}
 
 define-command -hidden auto-pairs-delete-new-line %{ try %{
-  auto-pairs-try-execute-keys '\\Q${opener}\\E\\n\\h*\\Q${closer}\\E' ';hJGi<a-k><ret>'
+  auto-pairs-try-execute-keys '\Q${opener}\E\n\h*\Q${closer}\E' ';hJGi<a-k><ret>'
   execute-keys <del>
   execute-keys -draft '<a-i><space>d'
 }}
 
 define-command -hidden auto-pairs-insert-space %[ evaluate-commands -save-regs '"KL' %[ try %[
-  auto-pairs-try-execute-keys '\\Q${opener}\\E\\h+\\Q${closer}\\E' ';<a-?>\H<ret><a-:>H?\H<ret><a-k><ret>'
+  auto-pairs-try-execute-keys '\Q${opener}\E\h+\Q${closer}\E' ';<a-?>\H<ret><a-:>H?\H<ret><a-k><ret>'
   execute-keys -draft -save-regs '' ';h{<space>y'
   # Length
   set-register L %sh(echo ${#kak_main_reg_dquote})
@@ -79,7 +79,7 @@ define-command -hidden auto-pairs-insert-space %[ evaluate-commands -save-regs '
 ]]]
 
 define-command -hidden auto-pairs-delete-space %[ evaluate-commands -save-regs '"KL' %[ try %[
-  auto-pairs-try-execute-keys '\\Q${opener}\\E\\h+\\Q${closer}\\E' ';<a-?>\H<ret><a-:>H?\H<ret><a-k><ret>'
+  auto-pairs-try-execute-keys '\Q${opener}\E\h+\Q${closer}\E' ';<a-?>\H<ret><a-:>H?\H<ret><a-k><ret>'
   try %[
     execute-keys -draft -save-regs '' ';h{<space>y'
     # Length
@@ -162,7 +162,7 @@ define-command -hidden -params 2 auto-pairs-surround-delete-opener %{
 }
 
 define-command -hidden auto-pairs-surround-insert-space %{ try %{
-  auto-pairs-try-execute-keys '\\Q${opener}\\E.+\\Q${closer}\\E' '<a-?>\H<ret><a-:>?\H<ret><a-k><ret>'
+  auto-pairs-try-execute-keys '\Q${opener}\E.+\Q${closer}\E' '<a-?>\H<ret><a-:>?\H<ret><a-k><ret>'
   try %{
     execute-keys -draft 'Zh<a-i><space>yz<a-:>l<a-i><space>R'
   } catch %{
@@ -171,7 +171,7 @@ define-command -hidden auto-pairs-surround-insert-space %{ try %{
 }}
 
 define-command -hidden auto-pairs-surround-delete-space %{ try %{
-  auto-pairs-try-execute-keys '\\Q${opener}\\E.+\\Q${closer}\\E' '<a-?>\H<ret><a-:>?\H<ret><a-k><ret>'
+  auto-pairs-try-execute-keys '\Q${opener}\E.+\Q${closer}\E' '<a-?>\H<ret><a-:>?\H<ret><a-k><ret>'
   try %{
     execute-keys -draft 'Zh<a-i><space>yz<a-:>l<a-i><space>R'
   } catch %{

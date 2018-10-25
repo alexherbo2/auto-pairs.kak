@@ -166,7 +166,7 @@ define-command -hidden auto-pairs-insert-new-line %{ try %{
   # void main() {␤ → void main() {␤
   # }                }           ‾‾
   # ‾                ‾
-  auto-pairs-try-execute-keys '\Q${opener}\E\n\h*\Q${closer}\E' ';KGl'
+  auto-pairs-try-execute-keys '\Q${opener}\E\n\h*\Q${closer}\E' ';KGlL'
   # Insert a new line again
   execute-keys <up><end><ret>
 }}

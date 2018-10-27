@@ -1,24 +1,13 @@
 #!/bin/sh
 
-root=$(git rev-parse --show-toplevel)
-name=$(basename $root .kak)
+set -e
 
-kak=$(realpath $(which kak))
+NAME='auto-pairs'
+kakoune_dir="$(cd $(dirname $(realpath $(which kak))); cd ..; pwd)"
 
-cd $(dirname $kak)
+cd "$(dirname "$0")/.."
+cp --recursive rc "$kakoune_dir/rc/$NAME"
+cp --recursive test "$kakoune_dir/test/$NAME"
 
-kakoune=$(git rev-parse --show-toplevel)
-
-[ $? = 0 ] || {
-  echo Kakoune binary is not in a Git repository > /dev/stderr
-  exit 1
-}
-
-cp --recursive $root/rc $kakoune/rc/$name
-cp --recursive $root/test $kakoune/test/$name
-
-cd $kakoune/test
-
-./run $name
-
-rm --force --recursive $kakoune/{rc,test}/$name
+cd "$kakoune_dir/test"
+./run $NAME

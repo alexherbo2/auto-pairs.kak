@@ -281,7 +281,7 @@ define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-command
       opener=$1
       closer=$2
       shift 2
-      echo "$regex" | sed "
+      printf '%s\n' "$regex" | sed "
         s/\${opener}/${opener}/g
         s/\${closer}/${closer}/g
       "

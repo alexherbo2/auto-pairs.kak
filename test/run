@@ -6,8 +6,8 @@ NAME='auto-pairs'
 kakoune_dir="$(cd $(dirname $(realpath $(which kak))); cd ..; pwd)"
 
 cd "$(dirname "$0")/.."
-cp --recursive rc "$kakoune_dir/rc/$NAME"
-cp --recursive test "$kakoune_dir/test/$NAME"
+cp -r rc "$kakoune_dir/rc/$NAME"
+cp -r test "$kakoune_dir/test/$NAME"
 
 cd "$kakoune_dir/test"
 ./run $NAME

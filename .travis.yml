@@ -1,6 +1,10 @@
 language: cpp
 compiler: clang
 
+os:
+  - linux
+  - osx
+
 addons:
   apt:
     sources:
@@ -10,13 +14,16 @@ addons:
       - libstdc++-5-dev
       - libncursesw5-dev
 
+before_install:
+  - if [ $TRAVIS_OS_NAME = osx ]; then brew update; fi
+
 install:
   - root=$PWD
   - mkdir bin
   - git clone git://github.com/mawww/kakoune repositories/github.com/mawww/kakoune
   - cd repositories/github.com/mawww/kakoune/src
   - make
-  - ln --symbolic $PWD/kak $root/bin
+  - ln -s $PWD/kak $root/bin
   - cd $root
 
 script:

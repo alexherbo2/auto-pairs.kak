@@ -285,10 +285,7 @@ define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-command
         s/\${opener}/${opener}/g
         s/\${closer}/${closer}/g
       "
-    done |
-    # --serial
-    # --delimiters
-    paste -s -d '|'
+    done | paste -s -d '|' -
   }
   execute-keys '<a-k><ret>'
 }}

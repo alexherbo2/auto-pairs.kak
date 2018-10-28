@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -e
-
 NAME='auto-pairs'
 if [ $# -eq 1 ]; then
     kakoune_dir="$1"

@@ -99,6 +99,7 @@ define-command -hidden -params 2 auto-pairs-insert-closer %{ evaluate-commands -
   # Select to the next _)_ containing zero or more whitespaces
   # Delete _)_ we inserted
   # Position the cursor next to the matching _)_ and mark the position
+  execute-keys -draft "<a-x><a-K>^\h*\Q%arg(2)\E$<ret>"
   execute-keys -draft -save-regs '' "hF%arg(2)<a-k>\A\Q%arg(2)\E\s*\Q%arg(2)\E\z<ret>Z<a-;>;dz<a-:>lZ"
   try %{
     # If selections extend

@@ -291,6 +291,12 @@ define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-command
   execute-keys '<a-k><ret>'
 }}
 
+hook global WinSetOption auto_pairs=.* %{ evaluate-commands %sh{
+  if test $kak_opt_auto_pairs_enabled = true; then
+    printf 'auto-pairs-%s;' disable enable
+  fi
+}}
+
 define-command auto-pairs-enable -docstring 'Enable automatic closing of pairs' %{
   evaluate-commands %sh{
     eval "set -- $kak_opt_auto_pairs"

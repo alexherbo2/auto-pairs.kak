@@ -244,7 +244,7 @@ _Push access to the repository_
 - [maximbaz] (2018-10-06)
 
 [Demo]: images/demo.gif
-[Kakoune]: http://kakoune.org
+[Kakoune]: https://kakoune.org
 [Travis]: https://travis-ci.org/alexherbo2/auto-pairs.kak
 [Badge]: https://travis-ci.org/alexherbo2/auto-pairs.kak.svg
 [IRC]: https://webchat.freenode.net?channels=kakoune

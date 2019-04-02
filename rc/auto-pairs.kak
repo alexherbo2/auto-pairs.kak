@@ -405,7 +405,11 @@ define-command -hidden auto-pairs-surround-delete-space %{ try %{
   }
 }}
 
-define-command auto-pairs-surround -params .. -docstring 'Enable automatic closing of pairs on selection boundaries for the whole insert session' %{
+define-command auto-pairs-surround -docstring \
+"auto-pairs-surround ([<opener> <closer>]...): enable automatic closing of pairs on selection boundaries for the whole insert session.
+Additional pairs can be specified using optional <opener> and <closer> arguments.
+For instance, `auto-pairs-surround _ _ * *` can be useful for Markdown (**foo**, _bar_, ...)." \
+-params .. %{
   evaluate-commands %sh{
     if [ "$kak_opt_auto_pairs_enabled" = true ]; then
       echo set-option window auto_pairs_was_enabled yes

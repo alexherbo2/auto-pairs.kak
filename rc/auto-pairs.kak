@@ -168,6 +168,9 @@ define-command -hidden auto-pairs-insert-new-line %{ try %{
   # }                }           ‾‾
   # ‾                ‾
   auto-pairs-try-execute-keys '\Q${opener}\E\n\h*\Q${closer}\E' ';KGl'
+  # Issue: Indentation is wrong when inserting in pair
+  # https://github.com/mawww/kakoune/issues/2806
+  execute-keys -draft 'K<a-&>'
   # Insert a new line again
   execute-keys <up><end><ret>
 }}

@@ -11,7 +11,7 @@ declare-option -hidden bool auto_pairs_was_enabled
 # │      ┊     ┊  ‾  ┊   ‾ ┊    ‾   ┊     ‾  ┊      ‾ ┊       ‾ ┊ ⁷     ¹‾     ⁷ │
 # ╰──────────────────────────────────────────────────────────────────────────────╯
 # What: We inserted _"_
-define-command -hidden -params 2 auto-pairs-insert-opener-closer %{ evaluate-commands -save-regs '"/' %{
+define-command -hidden auto-pairs-insert-opener-closer -params 2 %{ evaluate-commands -save-regs '"/' %{
   try %{
     # Call auto-pairs-insert-closer if cursor matches to _"_
     # Example:
@@ -50,7 +50,7 @@ define-command -hidden -params 2 auto-pairs-insert-opener-closer %{ evaluate-com
 # │  (   ┊  ▌  ┊ (▌) ┊ ((▌)) │
 # ╰──────────────────────────╯
 # What: We inserted _(_
-define-command -hidden -params 2 auto-pairs-insert-opener %{ try %{
+define-command -hidden auto-pairs-insert-opener -params 2 %{ try %{
   # Abort if cursor matches a word character
   # Example:
   # (Tchou
@@ -94,7 +94,7 @@ define-command -hidden -params 2 auto-pairs-insert-opener %{ try %{
 # │      ┊ }               ┊ }▌             │
 # ╰─────────────────────────────────────────╯
 # What: We inserted _)_
-define-command -hidden -params 2 auto-pairs-insert-closer %{ evaluate-commands -save-regs '"^' %{ try %{
+define-command -hidden auto-pairs-insert-closer -params 2 %{ evaluate-commands -save-regs '"^' %{ try %{
   # Position the cursor on the _)_ we inserted
   # Select to the next _)_ containing zero or more whitespaces
   # Delete _)_ we inserted
@@ -120,7 +120,7 @@ define-command -hidden -params 2 auto-pairs-insert-closer %{ evaluate-commands -
 # │  ⌫   ┊  "▌"  ┊   ▌    │
 # ╰───────────────────────╯
 # What: We deleted _"_ left to the cursor
-define-command -hidden -params 2 auto-pairs-delete-opener-closer %{ try %{
+define-command -hidden auto-pairs-delete-opener-closer -params 2 %{ try %{
   auto-pairs-delete-opener %arg(@)
 }}
 
@@ -130,7 +130,7 @@ define-command -hidden -params 2 auto-pairs-delete-opener-closer %{ try %{
 # │  ⌫   ┊  (▌)  ┊   ▌    │
 # ╰───────────────────────╯
 # What: We deleted _(_ left to the cursor
-define-command -hidden -params 2 auto-pairs-delete-opener %{ try %{
+define-command -hidden auto-pairs-delete-opener -params 2 %{ try %{
   # Try to delete _)_ under the cursor
   # Example:
   # ) → ▌
@@ -144,7 +144,7 @@ define-command -hidden -params 2 auto-pairs-delete-opener %{ try %{
 # │  ⌫   ┊  ()▌  ┊   ▌    │
 # ╰───────────────────────╯
 # What: We deleted _)_ left to the cursor
-define-command -hidden -params 2 auto-pairs-delete-closer %{ try %{
+define-command -hidden auto-pairs-delete-closer -params 2 %{ try %{
   # Try to delete _(_ left to the cursor
   # Example:
   # (␤ → ▌
@@ -359,7 +359,7 @@ define-command auto-pairs-toggle -docstring 'Toggle automatic closing of pairs' 
 # │      ┊ ‾‾‾‾‾ ┊  ‾‾‾‾‾  │
 # ╰────────────────────────╯
 # What: We inserted _(_ in insert (i) mode
-define-command -hidden -params 2 auto-pairs-surround-insert-opener %{
+define-command -hidden auto-pairs-surround-insert-opener -params 2 %{
   # Insert closing pair
   execute-keys -draft "<a-;>a%arg(2)"
 }
@@ -371,7 +371,7 @@ define-command -hidden -params 2 auto-pairs-surround-insert-opener %{
 # │      ┊  ‾‾‾‾‾  ┊ ‾‾‾‾‾  │
 # ╰─────────────────────────╯
 # What: We deleted _(_ in insert (i) mode
-define-command -hidden -params 2 auto-pairs-surround-delete-opener %{
+define-command -hidden auto-pairs-surround-delete-opener -params 2 %{
   # Try to delete the closing pair
   execute-keys -draft "<a-;>l<a-k>\Q%arg(2)<ret>d"
 }

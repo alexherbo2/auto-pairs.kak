@@ -167,7 +167,10 @@ define-command -hidden auto-pairs-insert-new-line %{ try %{
   # void main() {␤ → void main() {␤
   # }                }           ‾‾
   # ‾                ‾
-  auto-pairs-try-execute-keys '\Q${opener}\E\n\h*\Q${closer}\E' ';KGl'
+  evaluate-commands -draft %{
+    execute-keys ';KGl'
+    auto-pairs-match-pair '\Q${opener}\E\n\h*\Q${closer}\E'
+  }
   # Issue: Indentation is wrong when inserting in pair
   # https://github.com/mawww/kakoune/issues/2806
   execute-keys -draft 'K<a-&>'
@@ -191,7 +194,10 @@ define-command -hidden auto-pairs-delete-new-line %{ try %{
   # void main() {␤ → void main() {␤
   # }            ‾   }           ‾‾
   #                  ‾
-  auto-pairs-try-execute-keys '\Q${opener}\E\n\h*\Q${closer}\E' ';hJGi'
+  evaluate-commands -draft %{
+    execute-keys ';hJGi'
+    auto-pairs-match-pair '\Q${opener}\E\n\h*\Q${closer}\E'
+  }
   # Example:
   # void main() {▌ → void main() {▌}
   # }
@@ -211,7 +217,10 @@ define-command -hidden auto-pairs-insert-space %[ evaluate-commands -save-regs '
   # Example:
   # ( ) → ( )
   #   ‾   ‾‾‾
-  auto-pairs-try-execute-keys '\Q${opener}\E\h+\Q${closer}\E' ';<a-?>\H<ret><a-:>H?\H<ret>'
+  evaluate-commands -draft %{
+    execute-keys ';<a-?>\H<ret><a-:>H?\H<ret>'
+    auto-pairs-match-pair '\Q${opener}\E\h+\Q${closer}\E'
+  }
   # Select previous consecutive spaces
   # and copy to the copy register
   # Example:
@@ -247,7 +256,10 @@ define-command -hidden auto-pairs-delete-space %[ evaluate-commands -save-regs '
   # Example:
   # (  ) → (  )
   #    ‾   ‾‾‾‾
-  auto-pairs-try-execute-keys '\Q${opener}\E\h+\Q${closer}\E' ';<a-?>\H<ret><a-:>H?\H<ret>'
+  evaluate-commands -draft %{
+    execute-keys ';<a-?>\H<ret><a-:>H?\H<ret>'
+    auto-pairs-match-pair '\Q${opener}\E\h+\Q${closer}\E'
+  }
   try %[
     # Select previous consecutive spaces
     # and copy to the copy register
@@ -276,23 +288,24 @@ define-command -hidden auto-pairs-delete-space %[ evaluate-commands -save-regs '
 ]]]
 
 # Try to match a pair against selections
-define-command -hidden -params 2 auto-pairs-try-execute-keys %{ evaluate-commands -draft -save-regs '/' %{
-  execute-keys %arg(2)
-  set-register / %sh{
-    regex=$1
-    eval "set -- $kak_opt_auto_pairs"
-    while test $# -ge 2; do
-      opener=$1
-      closer=$2
-      shift 2
-      printf '%s\n' "$regex" | sed "
-        s/\${opener}/${opener}/g
-        s/\${closer}/${closer}/g
-      "
-    done | paste -s -d '|' -
+define-command -hidden auto-pairs-match-pair -params 1 %{
+  evaluate-commands -save-regs '/' %{
+    set-register / %sh{
+      regex=$1
+      eval "set -- $kak_opt_auto_pairs"
+      while test $# -ge 2; do
+        opener=$1
+        closer=$2
+        shift 2
+        printf '%s\n' "$regex" | sed "
+          s/\${opener}/${opener}/g
+          s/\${closer}/${closer}/g
+        "
+      done | paste -s -d '|' -
+    }
+    execute-keys '<a-k><ret>'
   }
-  execute-keys '<a-k><ret>'
-}}
+}
 
 hook global WinSetOption auto_pairs=.* %{ evaluate-commands %sh{
   if test $kak_opt_auto_pairs_enabled = true; then
@@ -375,7 +388,10 @@ define-command -hidden auto-pairs-surround-insert-space %{ try %{
   # Example:
   # (␣Tchou) → (␣Tchou)
   #   ‾‾‾‾‾    ‾‾‾‾‾‾‾‾
-  auto-pairs-try-execute-keys '\Q${opener}\E.+\Q${closer}\E' '<a-?>\H<ret><a-:>?\H<ret>'
+  evaluate-commands -draft %{
+    execute-keys '<a-?>\H<ret><a-:>?\H<ret>'
+    auto-pairs-match-pair '\Q${opener}\E.+\Q${closer}\E'
+  }
   try %{
     # Copy padding left
     # and apply to the right
@@ -397,7 +413,10 @@ define-command -hidden auto-pairs-surround-delete-space %{ try %{
   # Example:
   # (␣Tchou␣␣) → (␣Tchou␣␣)
   #   ‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾
-  auto-pairs-try-execute-keys '\Q${opener}\E.+\Q${closer}\E' '<a-?>\H<ret><a-:>?\H<ret>'
+  evaluate-commands -draft %{
+    execute-keys '<a-?>\H<ret><a-:>?\H<ret>'
+    auto-pairs-match-pair '\Q${opener}\E.+\Q${closer}\E'
+  }
   try %{
     # Copy padding left
     # and apply to the right

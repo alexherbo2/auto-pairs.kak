@@ -177,11 +177,11 @@ hook global WinCreate .* %{
 ```
 
 ``` kak
-map global user s -docstring 'Surround' ': auto-pairs-surround<ret>'
+map global user s -docstring 'Surround' ': auto-pairs-surround <lt> <gt><ret>'
 ```
 
 ``` kak
-map global user S -docstring 'Surround++' ': auto-pairs-surround _ _ * *<ret>'
+map global user S -docstring 'Surround++' ': auto-pairs-surround <lt> <gt> _ _ * *<ret>'
 ```
 
 ### Custom pairs

@@ -11,15 +11,15 @@ declare-option -hidden bool auto_pairs_was_enabled
 # │      ┊     ┊  ‾  ┊   ‾ ┊    ‾   ┊     ‾  ┊      ‾ ┊       ‾ ┊ ⁷     ¹‾     ⁷ │
 # ╰──────────────────────────────────────────────────────────────────────────────╯
 # What: We inserted _"_
-define-command -hidden auto-pairs-insert-opener-closer -params 2 %{ evaluate-commands -save-regs '"/' %{
+define-command -hidden auto-pairs-opener-or-closer-inserted -params 2 %{ evaluate-commands -save-regs '"/' %{
   try %{
-    # Call auto-pairs-insert-closer if cursor matches to _"_
+    # Call auto-pairs-closer-inserted if cursor matches to _"_
     # Example:
     # ""
     #  ‾
     execute-keys -draft ";<a-K>\Q%arg(1)<ret>"
     # Jump (Backward) 2 characters
-    # Call auto-pairs-insert-closer if matches a word character
+    # Call auto-pairs-closer-inserted if matches a word character
     # Example:
     # JoJo's Bizarre Adventure
     #    ↑ ‾
@@ -30,17 +30,17 @@ define-command -hidden auto-pairs-insert-opener-closer -params 2 %{ evaluate-com
     # """␤ → """␤
     #    ‾   ‾‾‾
     execute-keys -draft -save-regs '' ";<a-/>\Q%arg(1)\E+<ret>y"
-    # And call auto-pairs-insert-opener to close with the same amount of _"_
+    # And call auto-pairs-opener-inserted to close with the same amount of _"_
     # Example:
     # """␤ → """"""
     #    ‾      ‾
-    auto-pairs-insert-opener %arg(1) %val(main_reg_dquote)
+    auto-pairs-opener-inserted %arg(1) %val(main_reg_dquote)
   } catch %{
     # Used to move right
     # Example:
     # ""␤ → ""␤
     #  ‾      ‾
-    auto-pairs-insert-closer %arg(@)
+    auto-pairs-closer-inserted %arg(@)
   }
 }}
 
@@ -50,7 +50,7 @@ define-command -hidden auto-pairs-insert-opener-closer -params 2 %{ evaluate-com
 # │  (   ┊  ▌  ┊ (▌) ┊ ((▌)) │
 # ╰──────────────────────────╯
 # What: We inserted _(_
-define-command -hidden auto-pairs-insert-opener -params 2 %{ try %{
+define-command -hidden auto-pairs-opener-inserted -params 2 %{ try %{
   # Abort if cursor matches a word character
   # Example:
   # (Tchou
@@ -94,7 +94,7 @@ define-command -hidden auto-pairs-insert-opener -params 2 %{ try %{
 # │      ┊ }               ┊ }▌             │
 # ╰─────────────────────────────────────────╯
 # What: We inserted _)_
-define-command -hidden auto-pairs-insert-closer -params 2 %{ evaluate-commands -save-regs '"^' %{ try %{
+define-command -hidden auto-pairs-closer-inserted -params 2 %{ evaluate-commands -save-regs '"^' %{ try %{
   # Position the cursor on the _)_ we inserted
   # Select to the next _)_ containing zero or more whitespaces
   # Delete _)_ we inserted
@@ -120,8 +120,8 @@ define-command -hidden auto-pairs-insert-closer -params 2 %{ evaluate-commands -
 # │  ⌫   ┊  "▌"  ┊   ▌    │
 # ╰───────────────────────╯
 # What: We deleted _"_ left to the cursor
-define-command -hidden auto-pairs-delete-opener-closer -params 2 %{ try %{
-  auto-pairs-delete-opener %arg(@)
+define-command -hidden auto-pairs-opener-or-closer-deleted -params 2 %{ try %{
+  auto-pairs-opener-deleted %arg(@)
 }}
 
 # ┌───────────────────────┐
@@ -130,7 +130,7 @@ define-command -hidden auto-pairs-delete-opener-closer -params 2 %{ try %{
 # │  ⌫   ┊  (▌)  ┊   ▌    │
 # ╰───────────────────────╯
 # What: We deleted _(_ left to the cursor
-define-command -hidden auto-pairs-delete-opener -params 2 %{ try %{
+define-command -hidden auto-pairs-opener-deleted -params 2 %{ try %{
   # Try to delete _)_ under the cursor
   # Example:
   # ) → ▌
@@ -144,7 +144,7 @@ define-command -hidden auto-pairs-delete-opener -params 2 %{ try %{
 # │  ⌫   ┊  ()▌  ┊   ▌    │
 # ╰───────────────────────╯
 # What: We deleted _)_ left to the cursor
-define-command -hidden auto-pairs-delete-closer -params 2 %{ try %{
+define-command -hidden auto-pairs-closer-deleted -params 2 %{ try %{
   # Try to delete _(_ left to the cursor
   # Example:
   # (␤ → ▌
@@ -160,7 +160,7 @@ define-command -hidden auto-pairs-delete-closer -params 2 %{ try %{
 # │      ┊                 ┊ }              │
 # ╰─────────────────────────────────────────╯
 # What: We inserted a new line
-define-command -hidden auto-pairs-insert-new-line %{ try %{
+define-command -hidden auto-pairs-new-line-inserted %{ try %{
   # Select from the cursor to the last character of the previous line
   # and try to match a pair.
   # Example:
@@ -186,7 +186,7 @@ define-command -hidden auto-pairs-insert-new-line %{ try %{
 # │      ┊ }              ┊                 │
 # ╰─────────────────────────────────────────╯
 # What: We deleted a new line character
-define-command -hidden auto-pairs-delete-new-line %{ try %{
+define-command -hidden auto-pairs-new-line-deleted %{ try %{
   # Try to match a pair by selecting
   # from the previous character
   # to the first non blank character (skipping eventual indent).
@@ -212,7 +212,7 @@ define-command -hidden auto-pairs-delete-new-line %{ try %{
 # │  ␣   ┊ (▌) ┊ ( ▌ ) ┊ (  ▌  ) │
 # ╰──────────────────────────────╯
 # What: We inserted a space
-define-command -hidden auto-pairs-insert-space %[ evaluate-commands -save-regs '"KL' %[ try %[
+define-command -hidden auto-pairs-space-inserted %[ evaluate-commands -save-regs '"KL' %[ try %[
   # Try to match a pair
   # Example:
   # ( ) → ( )
@@ -250,7 +250,7 @@ define-command -hidden auto-pairs-insert-space %[ evaluate-commands -save-regs '
 # │  ⌫   ┊ (  ▌  ) ┊ ( ▌ ) ┊ (▌) │
 # ╰──────────────────────────────╯
 # What: We deleted a space left to the cursor
-define-command -hidden auto-pairs-delete-space %[ evaluate-commands -save-regs '"KL' %[ try %[
+define-command -hidden auto-pairs-space-deleted %[ evaluate-commands -save-regs '"KL' %[ try %[
   # Try to match a pair with at least one space inside,
   # otherwise nothing to do.
   # Example:
@@ -321,20 +321,20 @@ define-command auto-pairs-enable -docstring 'Enable automatic closing of pairs' 
       closer=$2
       shift 2
       if [ "$opener" = "$closer" ]; then
-        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-insert %(auto-pairs-insert-opener-closer %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-delete %(auto-pairs-delete-opener-closer %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-insert %(auto-pairs-opener-or-closer-inserted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-delete %(auto-pairs-opener-or-closer-deleted %-$opener- %-$closer-)"
       else
-        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-insert %(auto-pairs-insert-opener %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-delete %(auto-pairs-delete-opener %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertChar %-\Q$closer- -group auto-pairs-insert %(auto-pairs-insert-closer %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertDelete %-\Q$closer- -group auto-pairs-delete %(auto-pairs-delete-closer %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-insert %(auto-pairs-opener-inserted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-delete %(auto-pairs-opener-deleted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertChar %-\Q$closer- -group auto-pairs-insert %(auto-pairs-closer-inserted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertDelete %-\Q$closer- -group auto-pairs-delete %(auto-pairs-closer-deleted %-$opener- %-$closer-)"
       fi
     done
   }
-  hook window InsertChar \n -group auto-pairs-insert auto-pairs-insert-new-line
-  hook window InsertDelete \n -group auto-pairs-delete auto-pairs-delete-new-line
-  hook window InsertChar \h -group auto-pairs-insert auto-pairs-insert-space
-  hook window InsertDelete \h -group auto-pairs-delete auto-pairs-delete-space
+  hook window InsertChar \n -group auto-pairs-insert auto-pairs-new-line-inserted
+  hook window InsertDelete \n -group auto-pairs-delete auto-pairs-new-line-deleted
+  hook window InsertChar \h -group auto-pairs-insert auto-pairs-space-inserted
+  hook window InsertDelete \h -group auto-pairs-delete auto-pairs-space-deleted
   set-option window auto_pairs_enabled yes
 }
 
@@ -359,7 +359,7 @@ define-command auto-pairs-toggle -docstring 'Toggle automatic closing of pairs' 
 # │      ┊ ‾‾‾‾‾ ┊  ‾‾‾‾‾  │
 # ╰────────────────────────╯
 # What: We inserted _(_ in insert (i) mode
-define-command -hidden auto-pairs-surround-insert-opener -params 2 %{
+define-command -hidden auto-pairs-surround-opener-inserted -params 2 %{
   # Insert closing pair
   execute-keys -draft "<a-;>a%arg(2)"
 }
@@ -371,7 +371,7 @@ define-command -hidden auto-pairs-surround-insert-opener -params 2 %{
 # │      ┊  ‾‾‾‾‾  ┊ ‾‾‾‾‾  │
 # ╰─────────────────────────╯
 # What: We deleted _(_ in insert (i) mode
-define-command -hidden auto-pairs-surround-delete-opener -params 2 %{
+define-command -hidden auto-pairs-surround-opener-deleted -params 2 %{
   # Try to delete the closing pair
   execute-keys -draft "<a-;>l<a-k>\Q%arg(2)<ret>d"
 }
@@ -383,7 +383,7 @@ define-command -hidden auto-pairs-surround-delete-opener -params 2 %{
 # │      ┊  ‾‾‾‾‾  ┊   ‾‾‾‾‾   ┊    ‾‾‾‾‾    │
 # ╰──────────────────────────────────────────╯
 # What: We inserted a space in insert (i) mode
-define-command -hidden auto-pairs-surround-insert-space %{ try %{
+define-command -hidden auto-pairs-surround-space-inserted %{ try %{
   # Try to match a pair
   # Example:
   # (␣Tchou) → (␣Tchou)
@@ -408,7 +408,7 @@ define-command -hidden auto-pairs-surround-insert-space %{ try %{
 # │      ┊    ‾‾‾‾‾    ┊   ‾‾‾‾‾   ┊  ‾‾‾‾‾  │
 # ╰──────────────────────────────────────────╯
 # What: We deleted a space in insert (i) mode
-define-command -hidden auto-pairs-surround-delete-space %{ try %{
+define-command -hidden auto-pairs-surround-space-deleted %{ try %{
   # Try to match a pair
   # Example:
   # (␣Tchou␣␣) → (␣Tchou␣␣)
@@ -441,15 +441,15 @@ define-command auto-pairs-surround -params .. -docstring 'Enable automatic closi
         opener=$1
         closer=$2
         shift 2
-        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-surround-insert %(auto-pairs-surround-insert-opener %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-surround-delete %(auto-pairs-surround-delete-opener %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-surround-insert %(auto-pairs-surround-opener-inserted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-surround-delete %(auto-pairs-surround-opener-deleted %-$opener- %-$closer-)"
       done
     }
     eval "iterate $kak_opt_auto_pairs_surround"
     iterate "$@"
   }
-  hook window InsertChar \h -group auto-pairs-surround-insert auto-pairs-surround-insert-space
-  hook window InsertDelete \h -group auto-pairs-surround-delete auto-pairs-surround-delete-space
+  hook window InsertChar \h -group auto-pairs-surround-insert auto-pairs-surround-space-inserted
+  hook window InsertDelete \h -group auto-pairs-surround-delete auto-pairs-surround-space-deleted
   hook -once window ModeChange insert:normal %{
     evaluate-commands %sh{
       if [ "$kak_opt_auto_pairs_was_enabled" = true ]; then

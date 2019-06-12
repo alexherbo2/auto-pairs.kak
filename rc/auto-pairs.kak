@@ -321,26 +321,25 @@ define-command auto-pairs-enable -docstring 'Enable automatic closing of pairs' 
       closer=$2
       shift 2
       if [ "$opener" = "$closer" ]; then
-        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-insert %(auto-pairs-opener-or-closer-inserted %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-delete %(auto-pairs-opener-or-closer-deleted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs %(auto-pairs-opener-or-closer-inserted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs %(auto-pairs-opener-or-closer-deleted %-$opener- %-$closer-)"
       else
-        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-insert %(auto-pairs-opener-inserted %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-delete %(auto-pairs-opener-deleted %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertChar %-\Q$closer- -group auto-pairs-insert %(auto-pairs-closer-inserted %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertDelete %-\Q$closer- -group auto-pairs-delete %(auto-pairs-closer-deleted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs %(auto-pairs-opener-inserted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs %(auto-pairs-opener-deleted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertChar %-\Q$closer- -group auto-pairs %(auto-pairs-closer-inserted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertDelete %-\Q$closer- -group auto-pairs %(auto-pairs-closer-deleted %-$opener- %-$closer-)"
       fi
     done
   }
-  hook window InsertChar \n -group auto-pairs-insert auto-pairs-new-line-inserted
-  hook window InsertDelete \n -group auto-pairs-delete auto-pairs-new-line-deleted
-  hook window InsertChar \h -group auto-pairs-insert auto-pairs-space-inserted
-  hook window InsertDelete \h -group auto-pairs-delete auto-pairs-space-deleted
+  hook window InsertChar \n -group auto-pairs auto-pairs-new-line-inserted
+  hook window InsertDelete \n -group auto-pairs auto-pairs-new-line-deleted
+  hook window InsertChar \h -group auto-pairs auto-pairs-space-inserted
+  hook window InsertDelete \h -group auto-pairs auto-pairs-space-deleted
   set-option window auto_pairs_enabled yes
 }
 
 define-command auto-pairs-disable -docstring 'Disable automatic closing of pairs' %{
-  remove-hooks window auto-pairs-insert
-  remove-hooks window auto-pairs-delete
+  remove-hooks window auto-pairs
   set-option window auto_pairs_enabled no
 }
 
@@ -441,23 +440,22 @@ define-command auto-pairs-surround -params .. -docstring 'Enable automatic closi
         opener=$1
         closer=$2
         shift 2
-        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-surround-insert %(auto-pairs-surround-opener-inserted %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-surround-delete %(auto-pairs-surround-opener-deleted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs-surround %(auto-pairs-surround-opener-inserted %-$opener- %-$closer-)"
+        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs-surround %(auto-pairs-surround-opener-deleted %-$opener- %-$closer-)"
       done
     }
     eval "iterate $kak_opt_auto_pairs_surround"
     iterate "$@"
   }
-  hook window InsertChar \h -group auto-pairs-surround-insert auto-pairs-surround-space-inserted
-  hook window InsertDelete \h -group auto-pairs-surround-delete auto-pairs-surround-space-deleted
+  hook window InsertChar \h -group auto-pairs-surround auto-pairs-surround-space-inserted
+  hook window InsertDelete \h -group auto-pairs-surround auto-pairs-surround-space-deleted
   hook -once window ModeChange insert:normal %{
     evaluate-commands %sh{
       if [ "$kak_opt_auto_pairs_was_enabled" = true ]; then
         echo auto-pairs-enable
       fi
     }
-    remove-hooks window auto-pairs-surround-insert
-    remove-hooks window auto-pairs-surround-delete
+    remove-hooks window auto-pairs-surround
     set-option window auto_pairs_surround_enabled no
   }
   auto-pairs-disable

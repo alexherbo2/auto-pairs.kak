@@ -292,7 +292,7 @@ define-command -hidden auto-pairs-match-pair -params 1 %{
   evaluate-commands -save-regs '/' %{
     set-register / %sh{
       regex=$1
-      eval "set -- $kak_opt_auto_pairs"
+      eval "set -- $kak_quoted_opt_auto_pairs"
       while test $# -ge 2; do
         opener=$1
         closer=$2
@@ -315,7 +315,7 @@ hook global WinSetOption auto_pairs=.* %{ evaluate-commands %sh{
 
 define-command auto-pairs-enable -docstring 'Enable automatic closing of pairs' %{
   evaluate-commands %sh{
-    eval "set -- $kak_opt_auto_pairs"
+    eval "set -- $kak_quoted_opt_auto_pairs"
     while test $# -ge 2; do
       opener=$1
       closer=$2

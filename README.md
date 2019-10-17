@@ -215,7 +215,7 @@ define-command -hidden block-update-auto-pairs %{ evaluate-commands %sh{
 }}
 
 hook global WinCreate .* %{
-  hook window ModeChange 'normal:insert|insert:normal' block-update-auto-pairs
+  hook window ModeChange 'pop:(normal:insert|insert:normal)' block-update-auto-pairs
 }
 ```
 

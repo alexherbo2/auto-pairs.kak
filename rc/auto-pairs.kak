@@ -449,7 +449,7 @@ define-command auto-pairs-surround -params .. -docstring 'Enable automatic closi
   }
   hook window InsertChar \h -group auto-pairs-surround auto-pairs-surround-space-inserted
   hook window InsertDelete \h -group auto-pairs-surround auto-pairs-surround-space-deleted
-  hook -once window ModeChange insert:normal %{
+  hook -once window ModeChange pop:insert:normal %{
     evaluate-commands %sh{
       if [ "$kak_opt_auto_pairs_was_enabled" = true ]; then
         echo auto-pairs-enable

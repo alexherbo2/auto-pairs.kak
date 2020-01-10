@@ -1,4 +1,4 @@
-declare-option -docstring 'List of pairs' str-list auto_pairs ( ) { } [ ] '"' '"' "'" "'" ` `
+declare-option -docstring 'List of pairs' str-list auto_pairs ( ) { } [ ] '"' '"' "'" "'" ` ` “ ” ‘ ’ « » ‹ ›
 declare-option -docstring 'List of pairs' str-list auto_pairs_surround %opt(auto_pairs)
 declare-option -docstring 'Whether auto-pairs is active' bool auto_pairs_enabled no
 declare-option -docstring 'Whether auto-pairs-surround is active' bool auto_pairs_surround_enabled no

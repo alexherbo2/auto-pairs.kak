@@ -228,7 +228,7 @@ hook global WinCreate .* %{
 
 ## Options
 
-- `auto_pairs` `str-list`: List of pairs (Default: `` ( ) { } [ ] '"' '"' "'" "'" ` ` ``)
+- `auto_pairs` `str-list`: List of pairs (Default: `` ( ) { } [ ] '"' '"' "'" "'" ` ` “ ” ‘ ’ « » ‹ › ``)
 - `auto_pairs_surround` `str-list`: List of pairs (Default: `%opt(auto_pairs)`)
 - `auto_pairs_enabled` `bool`: Whether auto-pairs is active (Read-only)
 - `auto_pairs_surround_enabled` `bool`: Whether auto-pairs-surround is active (Read-only)

@@ -1,2 +1,0 @@
-source "%val(runtime)/rc/auto-pairs/auto-pairs.kak"
-set-option -add window auto_pairs ' ' ' '

@@ -1,5 +1,9 @@
 # Auto-pairs
 
+**Surround** has moved to [surround.kak].
+
+[surround.kak]: https://github.com/alexherbo2/surround.kak
+
 [![Build Status][Badge]][Travis]
 [![IRC][IRC Badge]][IRC]
 
@@ -116,50 +120,6 @@
 ╰──────────────────────────────╯
 ```
 
-### Surround (Around selections)
-
-#### Close pair
-
-```
-┌────────────────────────┐
-│ What ┊ Input ┊ Output  │
-├────────────────────────┤
-│  (   ┊ Tchou ┊ (Tchou) │
-│      ┊ ‾‾‾‾‾ ┊  ‾‾‾‾‾  │
-╰────────────────────────╯
-```
-
-#### Delete in pair
-
-```
-┌─────────────────────────┐
-│ What ┊  Input  ┊ Output │
-├─────────────────────────┤
-│  ⌫   ┊ (Tchou) ┊ Tchou  │
-│      ┊  ‾‾‾‾‾  ┊ ‾‾‾‾‾  │
-╰─────────────────────────╯
-```
-
-#### Space padding
-
-```
-┌──────────────────────────────────────────┐
-│ What ┊    1    ┊     2     ┊      3      │
-├──────────────────────────────────────────┤
-│  ␣   ┊ (Tchou) ┊ ( Tchou ) ┊ (  Tchou  ) │
-│      ┊  ‾‾‾‾‾  ┊   ‾‾‾‾‾   ┊    ‾‾‾‾‾    │
-╰──────────────────────────────────────────╯
-```
-
-```
-┌──────────────────────────────────────────┐
-│ What ┊      1      ┊     2     ┊    3    │
-├──────────────────────────────────────────┤
-│  ⌫   ┊ (  Tchou  ) ┊ ( Tchou ) ┊ (Tchou) │
-│      ┊    ‾‾‾‾‾    ┊   ‾‾‾‾‾   ┊  ‾‾‾‾‾  │
-╰──────────────────────────────────────────╯
-```
-
 ## Installation
 
 ### [Pathogen]
@@ -176,47 +136,10 @@ hook global WinCreate .* %{
 }
 ```
 
-``` kak
-map global user s -docstring 'Surround' ': auto-pairs-surround <lt> <gt><ret>'
-```
-
-``` kak
-map global user S -docstring 'Surround++' ': auto-pairs-surround <lt> <gt> _ _ * *<ret>'
-```
-
 ### Custom pairs
 
 ``` kak
 set-option -add global auto_pairs （ ） ｛ ｝ ［ ］ 〈 〉 『 』 「 」
-```
-
-### Per file-type settings
-
-``` kak
-hook global WinSetOption filetype=markdown %{
-  set-option -add buffer auto_pairs_surround _ _ * *
-}
-```
-
-### Status line integration
-
-``` kak
-set-option global modelinefmt '… %opt(block_auto_pairs) …'
-
-declare-option -hidden str block_auto_pairs
-
-define-command -hidden block-update-auto-pairs %{ evaluate-commands %sh{
-  if [ $kak_opt_auto_pairs_surround_enabled = true ]; then
-    text=surround
-  else
-    text="''"
-  fi
-  echo set-option window block_auto_pairs $text
-}}
-
-hook global WinCreate .* %{
-  hook window ModeChange 'pop:(normal:insert|insert:normal)' block-update-auto-pairs
-}
 ```
 
 ## Commands
@@ -224,14 +147,11 @@ hook global WinCreate .* %{
 - `auto-pairs-enable`: Enable automatic closing of pairs
 - `auto-pairs-disable`: Disable automatic closing of pairs
 - `auto-pairs-toggle`: Toggle automatic closing of pairs
-- `auto-pairs-surround`: Enable automatic closing of pairs on selection boundaries for the whole insert session
 
 ## Options
 
 - `auto_pairs` `str-list`: List of pairs (Default: `` ( ) { } [ ] '"' '"' "'" "'" ` ` “ ” ‘ ’ « » ‹ › ``)
-- `auto_pairs_surround` `str-list`: List of pairs (Default: `%opt(auto_pairs)`)
 - `auto_pairs_enabled` `bool`: Whether auto-pairs is active (Read-only)
-- `auto_pairs_surround_enabled` `bool`: Whether auto-pairs-surround is active (Read-only)
 
 ## Credits
 

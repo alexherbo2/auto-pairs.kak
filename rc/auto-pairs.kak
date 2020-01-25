@@ -1,349 +1,319 @@
-declare-option -docstring 'List of pairs' str-list auto_pairs ( ) { } [ ] '"' '"' "'" "'" ` ` “ ” ‘ ’ « » ‹ ›
-declare-option -docstring 'Whether auto-pairs is active' bool auto_pairs_enabled no
+hook global ModuleLoaded auto-pairs %{
+  auto-pairs-enable
+}
 
-# ┌──────────────────────────────────────────────────────────────────────────────┐
-# │ What ┊  1  ┊  2  ┊  3  ┊   4    ┊   5    ┊   6    ┊    7    ┊       8        │
-# ├──────────────────────────────────────────────────────────────────────────────┤
-# │  "   ┊  ▌  ┊ ""  ┊ ""  ┊ """""" ┊ """""" ┊ """""" ┊ """"""  ┊ """""""""""""" │
-# │      ┊     ┊  ‾  ┊   ‾ ┊    ‾   ┊     ‾  ┊      ‾ ┊       ‾ ┊ ⁷     ¹‾     ⁷ │
-# ╰──────────────────────────────────────────────────────────────────────────────╯
-# What: We inserted _"_
-define-command -hidden auto-pairs-opener-or-closer-inserted -params 2 %{ evaluate-commands -save-regs '"/' %{
-  try %{
-    # Call auto-pairs-closer-inserted if cursor matches to _"_
-    # Example:
-    # ""
-    #  ‾
-    execute-keys -draft ";<a-K>\Q%arg(1)<ret>"
-    # Jump (Backward) 2 characters
-    # Call auto-pairs-closer-inserted if matches a word character
-    # Example:
-    # JoJo's Bizarre Adventure
-    #    ↑ ‾
-    execute-keys -draft '2h<a-K>\w<ret>'
-    # Select previous consecutive _"_
-    # and copy to the copy register.
-    # Example:
-    # """␤ → """␤
-    #    ‾   ‾‾‾
-    execute-keys -draft -save-regs '' ";<a-/>\Q%arg(1)\E+<ret>y"
-    # And call auto-pairs-opener-inserted to close with the same amount of _"_
-    # Example:
-    # """␤ → """"""
-    #    ‾      ‾
-    auto-pairs-opener-inserted %arg(1) %val(main_reg_dquote)
-  } catch %{
-    # Used to move right
-    # Example:
-    # ""␤ → ""␤
-    #  ‾      ‾
-    auto-pairs-closer-inserted %arg(@)
-  }
-}}
+provide-module auto-pairs %{
 
-# ┌──────────────────────────┐
-# │ What ┊  1  ┊  2  ┊   3   │
-# ├──────────────────────────┤
-# │  (   ┊  ▌  ┊ (▌) ┊ ((▌)) │
-# ╰──────────────────────────╯
-# What: We inserted _(_
-define-command -hidden auto-pairs-opener-inserted -params 2 %{ try %{
-  # Abort if cursor matches a word character
-  # Example:
-  # (Tchou
-  #  ‾
-  execute-keys -draft ';<a-K>\w<ret>'
-  # Insert closing pair
-  # Example:
-  # """␤ → """"""␤
-  #    ‾   ³ ¹¹ ³‾
-  execute-keys %arg(2)
-  # Jump to the position before inserting the closing pair
-  # Length (Closer)
-  set-register L %sh(echo ${#2})
-  try %{
-    # If selections extend
-    execute-keys -draft '<a-k>..<ret>'
-    # Preserve anchor position
-    # Example:
-    # """"""␤ → """"""␤
-    # ------‾   ---‾
-    execute-keys "<a-;>%reg(L)H"
-  } catch %{
-    # Jump without preserving
-    # Example:
-    # """"""␤ → """"""␤
-    # ³ ¹¹ ³‾      ‾
-    execute-keys "<a-;>%reg(L)h"
-  }
-}}
+  # Options ────────────────────────────────────────────────────────────────────
 
-# ┌───────────────────────┐
-# │ What ┊ Input ┊ Output │
-# ├───────────────────────┤
-# │  )   ┊  (▌)  ┊  ()▌   │
-# ╰───────────────────────╯
-# ┌─────────────────────────────────────────┐
-# │ What ┊      Input      ┊     Output     │
-# ├─────────────────────────────────────────┤
-# │      ┊ void main() {   ┊ void main() {  │
-# │  }   ┊   return null;▌ ┊   return null; │
-# │      ┊ }               ┊ }▌             │
-# ╰─────────────────────────────────────────╯
-# What: We inserted _)_
-define-command -hidden auto-pairs-closer-inserted -params 2 %{ evaluate-commands -save-regs '"^' %{ try %{
-  # Position the cursor on the _)_ we inserted
-  # Select to the next _)_ containing zero or more whitespaces
-  # Delete _)_ we inserted
-  # Position the cursor next to the matching _)_ and mark the position
-  execute-keys -draft "<a-x><a-K>^\h*\Q%arg(2)\E$<ret>"
-  execute-keys -draft -save-regs '' "hF%arg(2)<a-k>\A\Q%arg(2)\E\s*\Q%arg(2)\E\z<ret>Z<a-;>;dz<a-:>lZ"
-  try %{
-    # If selections extend
-    execute-keys -draft '<a-k>..<ret>'
-    # Preserve anchor position by extending the selection to the mark
-    execute-keys '<a-;><a-z>u'
-  } catch %{
-    # Jump without preserving
-    execute-keys '<a-;>z'
-  }
-  # Hide message from the status line
-  echo
-}}}
+  declare-option -docstring 'List of surrounding pairs' str-list auto_pairs ( ) { } [ ] '"' '"' "'" "'" ` ` “ ” ‘ ’ « » ‹ ›
+  declare-option -docstring 'List of punctuation marks' str-list auto_pairs_punctuation_marks "'"
 
-# ┌───────────────────────┐
-# │ What ┊ Input ┊ Output │
-# ├───────────────────────┤
-# │  ⌫   ┊  "▌"  ┊   ▌    │
-# ╰───────────────────────╯
-# What: We deleted _"_ left to the cursor
-define-command -hidden auto-pairs-opener-or-closer-deleted -params 2 %{ try %{
-  auto-pairs-opener-deleted %arg(@)
-}}
+  declare-option -hidden str auto_pairs_to_regex
+  declare-option -hidden str auto_pairs_punctuation_marks_to_regex
 
-# ┌───────────────────────┐
-# │ What ┊ Input ┊ Output │
-# ├───────────────────────┤
-# │  ⌫   ┊  (▌)  ┊   ▌    │
-# ╰───────────────────────╯
-# What: We deleted _(_ left to the cursor
-define-command -hidden auto-pairs-opener-deleted -params 2 %{ try %{
-  # Try to delete _)_ under the cursor
-  # Example:
-  # ) → ▌
-  # ‾
-  execute-keys -draft ";<a-k>\Q%arg(2)<ret>d"
-}}
+  # Commands ───────────────────────────────────────────────────────────────────
 
-# ┌───────────────────────┐
-# │ What ┊ Input ┊ Output │
-# ├───────────────────────┤
-# │  ⌫   ┊  ()▌  ┊   ▌    │
-# ╰───────────────────────╯
-# What: We deleted _)_ left to the cursor
-define-command -hidden auto-pairs-closer-deleted -params 2 %{ try %{
-  # Try to delete _(_ left to the cursor
-  # Example:
-  # (␤ → ▌
-  #  ‾
-  execute-keys -draft "h<a-k>\Q%arg(1)<ret>d"
-}}
-
-# ┌─────────────────────────────────────────┐
-# │ What ┊      Input      ┊     Output     │
-# ├─────────────────────────────────────────┤
-# │      ┊ void main() {▌} ┊ void main() {  │
-# │  ⏎   ┊                 ┊   ▌            │
-# │      ┊                 ┊ }              │
-# ╰─────────────────────────────────────────╯
-# What: We inserted a new line
-define-command -hidden auto-pairs-new-line-inserted %{ try %{
-  # Select from the cursor to the last character of the previous line
-  # and try to match a pair.
-  # Example:
-  # void main() {␤ → void main() {␤
-  # }                }           ‾‾
-  # ‾                ‾
-  evaluate-commands -draft %{
-    execute-keys ';KGl'
-    auto-pairs-match-pair '\Q${opener}\E\n\h*\Q${closer}\E'
-  }
-  # Issue: Indentation is wrong when inserting in pair
-  # https://github.com/mawww/kakoune/issues/2806
-  execute-keys -draft 'K<a-&>'
-  # Insert a new line again
-  execute-keys <up><end><ret>
-}}
-
-# ┌─────────────────────────────────────────┐
-# │ What ┊     Input      ┊     Output      │
-# ├─────────────────────────────────────────┤
-# │      ┊ void main() {  ┊ void main() {▌} │
-# │  ⌫   ┊ ▌              ┊                 │
-# │      ┊ }              ┊                 │
-# ╰─────────────────────────────────────────╯
-# What: We deleted a new line character
-define-command -hidden auto-pairs-new-line-deleted %{ try %{
-  # Try to match a pair by selecting
-  # from the previous character
-  # to the first non blank character (skipping eventual indent).
-  # Example:
-  # void main() {␤ → void main() {␤
-  # }            ‾   }           ‾‾
-  #                  ‾
-  evaluate-commands -draft %{
-    execute-keys ';hJGi'
-    auto-pairs-match-pair '\Q${opener}\E\n\h*\Q${closer}\E'
-  }
-  # Example:
-  # void main() {▌ → void main() {▌}
-  # }
-  execute-keys <del>
-  # Try to delete eventual spaces, used for indentation
-  execute-keys -draft '<a-i><space>d'
-}}
-
-# ┌──────────────────────────────┐
-# │ What ┊  1  ┊   2   ┊    3    │
-# ├──────────────────────────────┤
-# │  ␣   ┊ (▌) ┊ ( ▌ ) ┊ (  ▌  ) │
-# ╰──────────────────────────────╯
-# What: We inserted a space
-define-command -hidden auto-pairs-space-inserted %[ evaluate-commands -save-regs '"KL' %[ try %[
-  # Try to match a pair
-  # Example:
-  # ( ) → ( )
-  #   ‾   ‾‾‾
-  evaluate-commands -draft %{
-    execute-keys ';<a-?>\H<ret><a-:>H?\H<ret>'
-    auto-pairs-match-pair '\Q${opener}\E\h+\Q${closer}\E'
-  }
-  # Select previous consecutive spaces
-  # and copy to the copy register
-  # Example:
-  # (  ) → (  ) → (  )
-  #    ‾     ‾     ‾‾
-  execute-keys -draft -save-regs '' ';h{<space>y'
-  # Length (Padding)
-  set-register L %sh(echo ${#kak_main_reg_dquote})
-  # Key (Extend)
-  # If selections extend
-  try %[ execute-keys -draft '<a-k>..<ret>'
-    # Preserve anchor position
-    set-register K H
-  ] catch %[
-    # Jump without preserving
-    set-register K h
-  ]
-  # Delete spaces right to the cursor
-  try %(execute-keys -draft ';}<space>d')
-  # Adjust padding
-  execute-keys "<c-r>""<a-;>%reg(L)%reg(K)"
-]]]
-
-# ┌──────────────────────────────┐
-# │ What ┊    1    ┊   2   ┊  3  │
-# ├──────────────────────────────┤
-# │  ⌫   ┊ (  ▌  ) ┊ ( ▌ ) ┊ (▌) │
-# ╰──────────────────────────────╯
-# What: We deleted a space left to the cursor
-define-command -hidden auto-pairs-space-deleted %[ evaluate-commands -save-regs '"KL' %[ try %[
-  # Try to match a pair with at least one space inside,
-  # otherwise nothing to do.
-  # Example:
-  # (  ) → (  )
-  #    ‾   ‾‾‾‾
-  evaluate-commands -draft %{
-    execute-keys ';<a-?>\H<ret><a-:>H?\H<ret>'
-    auto-pairs-match-pair '\Q${opener}\E\h+\Q${closer}\E'
-  }
-  try %[
-    # Select previous consecutive spaces
-    # and copy to the copy register
-    # Example:
-    # (  ) → (  ) → (  )
-    #    ‾     ‾     ‾‾
-    execute-keys -draft -save-regs '' ';h{<space>y'
-    # Length (Padding)
-    set-register L %sh(echo ${#kak_main_reg_dquote})
-    # Key (Extend)
-    # If selections extend
-    try %[ execute-keys -draft '<a-k>..<ret>'
-      # Preserve anchor position
-      set-register K H
-    ] catch %[
-      # Jump without preserving
-      set-register K h
-    ]
-    # Delete spaces right to the cursor
-    try %(execute-keys -draft ';}<space>d')
-    # Adjust padding
-    execute-keys "<c-r>""<a-;>%reg(L)%reg(K)"
-  ] catch %[
-    execute-keys '<del>'
-  ]
-]]]
-
-# Try to match a pair against selections
-define-command -hidden auto-pairs-match-pair -params 1 %{
-  evaluate-commands -save-regs '/' %{
-    set-register / %sh{
-      regex=$1
-      eval "set -- $kak_quoted_opt_auto_pairs"
-      while test $# -ge 2; do
-        opener=$1
-        closer=$2
-        shift 2
-        printf '%s\n' "$regex" | sed "
-          s/\${opener}/${opener}/g
-          s/\${closer}/${closer}/g
-        "
-      done | paste -s -d '|' -
+  define-command auto-pairs-enable -docstring 'Enable auto-pairs' %{
+    # Generate hooks for auto-paired characters.
+    # Also build regexes for matching a surrounding pair and punctuation marks.
+    evaluate-commands %sh{
+      main() {
+        eval "set -- $kak_quoted_opt_auto_pairs"
+        build_hooks "$@"
+        build_regex "$@"
+        eval "set -- $kak_quoted_opt_auto_pairs_punctuation_marks"
+        build_punctuation_regex "$@"
+      }
+      build_hooks() {
+        while test $# -ge 2; do
+          opening=$1 closing=$2
+          shift 2
+          kak_quoted_opening=$(kak_escape "$opening")
+          kak_quoted_closing=$(kak_escape "$closing")
+          kak_quoted_opening_regex=$(kak_escape "\\Q$opening\\E")
+          kak_quoted_closing_regex=$(kak_escape "\\Q$closing\\E")
+          if test "$opening" = "$closing"; then
+            echo "
+              hook -group auto-pairs global InsertChar $kak_quoted_opening_regex %(auto-pairs-opening-or-closing-inserted $kak_quoted_opening)
+              hook -group auto-pairs global InsertDelete $kak_quoted_opening_regex %(auto-pairs-opening-or-closing-deleted $kak_quoted_opening)
+            "
+          else
+            echo "
+              hook -group auto-pairs global InsertChar $kak_quoted_opening_regex %(auto-pairs-opening-inserted $kak_quoted_opening $kak_quoted_closing)
+              hook -group auto-pairs global InsertDelete $kak_quoted_opening_regex %(auto-pairs-opening-deleted $kak_quoted_opening $kak_quoted_closing)
+              hook -group auto-pairs global InsertChar $kak_quoted_closing_regex %(auto-pairs-closing-inserted $kak_quoted_opening $kak_quoted_closing)
+              hook -group auto-pairs global InsertDelete $kak_quoted_closing_regex %(auto-pairs-closing-deleted $kak_quoted_opening $kak_quoted_closing)
+            "
+          fi
+        done
+      }
+      build_regex() {
+        regex=''
+        while test $# -ge 2; do
+          opening=$1 closing=$2
+          shift 2
+          regex="$regex|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
+        done
+        regex=${regex#|}
+        kak_quoted_regex=$(kak_escape "$regex")
+        printf 'set-option global auto_pairs_to_regex %s\n' "$kak_quoted_regex"
+      }
+      build_punctuation_regex() {
+        regex='['
+        for punctuation do
+          regex="${regex}${punctuation}"
+        done
+        regex="${regex}]"
+        kak_quoted_regex=$(kak_escape "$regex")
+        printf 'set-option global auto_pairs_punctuation_marks_to_regex %s\n' "$kak_quoted_regex"
+      }
+      kak_escape() {
+        for argument do
+          printf "'"
+          printf '%s' "$argument" | sed "s/'/''/g"
+          printf "'"
+          printf ' '
+        done
+      }
+      main "$@"
     }
-    execute-keys '<a-k><ret>'
+    hook -group auto-pairs global InsertChar '\n' auto-pairs-new-line-inserted
+    hook -group auto-pairs global InsertDelete '\n' auto-pairs-new-line-deleted
+    hook -group auto-pairs global InsertChar ' ' auto-pairs-space-inserted
+    hook -group auto-pairs global InsertDelete ' ' auto-pairs-space-deleted
+    # Update auto-pairs on option changes
+    hook -group auto-pairs global WinSetOption '(auto_pairs|auto_pairs_punctuation_marks)=.*' %{
+      auto-pairs-disable
+      auto-pairs-enable
+    }
+  }
+
+  define-command auto-pairs-disable -docstring 'Disable auto-pairs' %{
+    remove-hooks global auto-pairs
+  }
+
+  # Implementation commands ────────────────────────────────────────────────────
+
+  # ╭─────────────────────────────╮
+  # │ What ┊ 0 ┊  1  ┊  2  ┊  3   │
+  # ├─────────────────────────────┤
+  # │  "   ┊ ▌ ┊ "▌" ┊ ""▌ ┊ """▌ │
+  # ╰─────────────────────────────╯
+  define-command -hidden auto-pairs-opening-or-closing-inserted -params 1 %{
+    try %{
+      # Case 2: Closing inserted
+      auto-pairs-cursor-keep-fixed-string %arg{1}
+      auto-pairs-closing-inserted %arg{1} %arg{1}
+    } catch %{
+      # Case 3: Skip post pair
+      auto-pairs-cursor-reject-fixed-string %arg{1} '2h'
+      # Case 1: Opening inserted
+      auto-pairs-opening-inserted %arg{1} %arg{1}
+    } catch ''
+  }
+
+  # ╭────────────────────────╮
+  # │ What ┊ 0 ┊  1  ┊   2   │
+  # ├────────────────────────┤
+  # │  (   ┊ ▌ ┊ (▌) ┊ ((▌)) │
+  # ╰────────────────────────╯
+  define-command -hidden auto-pairs-opening-inserted -params 2 %{
+    try %{
+      # Skip escaped pairs
+      auto-pairs-cursor-reject-fixed-string '\' '2h'
+      # Abort if opening pair is a punctuation mark and surrounded by word characters
+      # JoJo's Bizarre Adventure
+      #    ‾ ‾
+      auto-pairs-reject "\A\w%opt{auto_pairs_punctuation_marks_to_regex}|%opt{auto_pairs_punctuation_marks_to_regex}\w\z" ';2H'
+      # Insert the closing pair
+      auto-pairs-insert-text-in-pair %arg{2}
+    }
+  }
+
+  # ╭───────────────────────╮
+  # │ What ┊ Input ┊ Output │
+  # ├───────────────────────┤
+  # │  )   ┊  (▌)  ┊  ()▌   │
+  # ╰───────────────────────╯
+  define-command -hidden auto-pairs-closing-inserted -params 2 %{
+    try %{
+      auto-pairs-cursor-keep-fixed-string %arg{2}
+      execute-keys '<backspace>'
+      auto-pairs-move-in-pair
+    }
+  }
+
+  # ╭───────────────────────╮
+  # │ What ┊ Input ┊ Output │
+  # ├───────────────────────┤
+  # │  ⌫   ┊  "▌"  ┊   ▌    │
+  # ╰───────────────────────╯
+  define-command -hidden auto-pairs-opening-or-closing-deleted -params 1 %{
+    auto-pairs-opening-deleted %arg{1} %arg{1}
+  }
+
+  # ╭───────────────────────╮
+  # │ What ┊ Input ┊ Output │
+  # ├───────────────────────┤
+  # │  ⌫   ┊  (▌)  ┊   ▌    │
+  # ╰───────────────────────╯
+  define-command -hidden auto-pairs-opening-deleted -params 2 %{
+    try %{
+      auto-pairs-cursor-keep-fixed-string %arg{2}
+      execute-keys '<del>'
+    }
+  }
+
+  # ╭───────────────────────╮
+  # │ What ┊ Input ┊ Output │
+  # ├───────────────────────┤
+  # │  ⌫   ┊  ()▌  ┊   ▌    │
+  # ╰───────────────────────╯
+  define-command -hidden auto-pairs-closing-deleted -params 2 %{
+    try %{
+      auto-pairs-cursor-keep-fixed-string %arg{1} 'h'
+      execute-keys '<backspace>'
+    }
+  }
+
+  # ╭────────────────────────────────────────╮
+  # │ What ┊      Input      ┊    Output     │
+  # ├────────────────────────────────────────┤
+  # │      ┊ void main() {▌} ┊ void main() { │
+  # │  ⏎   ┊                 ┊   ▌           │
+  # │      ┊                 ┊ }             │
+  # ╰────────────────────────────────────────╯
+  define-command -hidden auto-pairs-new-line-inserted %{
+    try %{
+      # Test a surrounding pair with the chunks of the previous line.
+      auto-pairs-keep-surrounding-pair 'giKGl'
+      # Copy previous line indent
+      execute-keys -draft 'K<a-&>'
+      # Insert a new line above
+      execute-keys '<up><end><ret>'
+      # And indent it
+      execute-keys -draft 'K<a-&>j<a-gt>'
+    }
+  }
+
+  # ╭────────────────────────────────────────╮
+  # │ What ┊     Input     ┊     Output      │
+  # ├────────────────────────────────────────┤
+  # │      ┊ void main() { ┊ void main() {▌} │
+  # │  ⌫   ┊ ▌             ┊                 │
+  # │      ┊ }             ┊                 │
+  # ╰────────────────────────────────────────╯
+  define-command -hidden auto-pairs-new-line-deleted %{
+    try %{
+      # Test a surrounding pair with the chunks of the current and next lines.
+      auto-pairs-keep-surrounding-pair ';<a-/>\H<ret>?\S<ret>'
+      # Join surrounding pair
+      execute-keys -draft '<a-a><space>d'
+    }
+  }
+
+  # ╭──────────────────────────────╮
+  # │ What ┊  0  ┊   1   ┊    2    │
+  # ├──────────────────────────────┤
+  # │  ␣   ┊ (▌) ┊ (␣▌␣) ┊ (␣␣▌␣␣) │
+  # ╰──────────────────────────────╯
+  define-command -hidden auto-pairs-space-inserted %{
+    try %{
+      # Test surrounding line content.
+      auto-pairs-keep-surrounding-pair ';<a-/>\H<ret>?\H<ret>'
+      auto-pairs-insert-text-in-pair ' '
+    }
+  }
+
+  # ╭──────────────────────────────╮
+  # │ What ┊    0    ┊   1   ┊  2  │
+  # ├──────────────────────────────┤
+  # │  ⌫   ┊ (␣␣▌␣␣) ┊ (␣▌␣) ┊ (▌) │
+  # ╰──────────────────────────────╯
+  define-command -hidden auto-pairs-space-deleted %{
+    try %{
+      # Test surrounding line content.
+      auto-pairs-keep-surrounding-pair ';<a-/>\H<ret>?\H<ret>'
+      execute-keys '<del>'
+    }
+  }
+
+  # Utility commands ───────────────────────────────────────────────────────────
+
+  define-command -hidden auto-pairs-keep-surrounding-pair -params ..1 %{
+    auto-pairs-keep %opt{auto_pairs_to_regex} %arg{1}
+  }
+
+  define-command -hidden auto-pairs-insert-text-in-pair -params 1 %{
+    auto-pairs-insert-text %arg{1}
+    # Jump backwards in pair, before inserting.
+    # If something is selected (i.e. the selection is not just the cursor),
+    # preserve the anchor position.
+    evaluate-commands -save-regs 'l' %{
+      # Length of inserted text
+      # Note: ${#1} is unreliable with UTF-8.
+      set-register l %sh(printf '%s' "$1" | wc -m)
+      try %{
+        # Test if extending
+        execute-keys -draft '<a-k>.{2,}<ret>'
+        # Preserve anchor position
+        execute-keys "<a-;>%reg{l}H"
+      } catch %{
+        # Jump without preserving
+        execute-keys "<a-;>%reg{l}h"
+      }
+    }
+  }
+
+  define-command -hidden auto-pairs-insert-text -params 1 %{
+    # A bit verbose, but more robust than passing text to execute-keys.
+    evaluate-commands -save-regs '"' %{
+      set-register '"' %arg{1}
+      execute-keys '<c-r>"'
+    }
+  }
+
+  define-command -hidden auto-pairs-move-in-pair %{
+    try %{
+      # Test if extending
+      execute-keys -draft '<a-k>.{2,}<ret>'
+      # Preserve anchor position
+      execute-keys '<a-;>L'
+    } catch %{
+      # Jump without preserving
+      execute-keys '<a-;>l'
+    }
+  }
+
+  # Keep
+  define-command -hidden auto-pairs-keep-implementation -params 2..3 %{
+    evaluate-commands -draft -save-regs '/' %{
+      execute-keys %arg{3}
+      set-register / %arg{2}
+      execute-keys %arg{1} '<ret>'
+    }
+  }
+  define-command -hidden auto-pairs-keep -params 1..2 %{
+    auto-pairs-keep-implementation '<a-k>' %arg{@}
+  }
+  define-command -hidden auto-pairs-cursor-keep -params 1..2 %{
+    auto-pairs-keep %arg{1} ";%arg{2}"
+  }
+  define-command -hidden auto-pairs-cursor-keep-fixed-string -params 1..2 %{
+    auto-pairs-cursor-keep "\Q%arg{1}\E" %arg{2}
+  }
+
+  # Reject
+  define-command -hidden auto-pairs-reject -params 1..2 %{
+    auto-pairs-keep-implementation '<a-K>' %arg{@}
+  }
+  define-command -hidden auto-pairs-cursor-reject -params 1..2 %{
+    auto-pairs-reject %arg{1} ";%arg{2}"
+  }
+  define-command -hidden auto-pairs-cursor-reject-fixed-string -params 1..2 %{
+    auto-pairs-cursor-reject "\Q%arg{1}\E" %arg{2}
   }
 }
 
-hook global WinSetOption auto_pairs=.* %{ evaluate-commands %sh{
-  if test $kak_opt_auto_pairs_enabled = true; then
-    printf 'auto-pairs-%s;' disable enable
-  fi
-}}
-
-define-command auto-pairs-enable -docstring 'Enable automatic closing of pairs' %{
-  evaluate-commands %sh{
-    eval "set -- $kak_quoted_opt_auto_pairs"
-    while test $# -ge 2; do
-      opener=$1
-      closer=$2
-      shift 2
-      if [ "$opener" = "$closer" ]; then
-        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs %(auto-pairs-opener-or-closer-inserted %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs %(auto-pairs-opener-or-closer-deleted %-$opener- %-$closer-)"
-      else
-        printf '%s\n' "hook window InsertChar %-\Q$opener- -group auto-pairs %(auto-pairs-opener-inserted %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertDelete %-\Q$opener- -group auto-pairs %(auto-pairs-opener-deleted %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertChar %-\Q$closer- -group auto-pairs %(auto-pairs-closer-inserted %-$opener- %-$closer-)"
-        printf '%s\n' "hook window InsertDelete %-\Q$closer- -group auto-pairs %(auto-pairs-closer-deleted %-$opener- %-$closer-)"
-      fi
-    done
-  }
-  hook window InsertChar \n -group auto-pairs auto-pairs-new-line-inserted
-  hook window InsertDelete \n -group auto-pairs auto-pairs-new-line-deleted
-  hook window InsertChar \h -group auto-pairs auto-pairs-space-inserted
-  hook window InsertDelete \h -group auto-pairs auto-pairs-space-deleted
-  set-option window auto_pairs_enabled yes
-}
-
-define-command auto-pairs-disable -docstring 'Disable automatic closing of pairs' %{
-  remove-hooks window auto-pairs
-  set-option window auto_pairs_enabled no
-}
-
-define-command auto-pairs-toggle -docstring 'Toggle automatic closing of pairs' %{ evaluate-commands %sh{
-  if [ "$kak_opt_auto_pairs_enabled" = true ]; then
-    echo auto-pairs-disable
-  else
-    echo auto-pairs-enable
-  fi
-}}
+require-module auto-pairs

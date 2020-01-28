@@ -1,5 +1,6 @@
 hook global ModuleLoaded auto-pairs %{
-  auto-pairs-enable
+  # Delay auto-pairs-enable until entering insert mode
+  hook -once global ModeChange push:normal:insert auto-pairs-enable
 }
 
 provide-module auto-pairs %{

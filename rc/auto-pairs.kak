@@ -29,21 +29,18 @@ provide-module auto-pairs %{
         while test $# -ge 2; do
           opening=$1 closing=$2
           shift 2
-          kak_quoted_opening=$(kak_escape "$opening")
-          kak_quoted_closing=$(kak_escape "$closing")
-          kak_quoted_opening_regex=$(kak_escape "\\Q$opening\\E")
-          kak_quoted_closing_regex=$(kak_escape "\\Q$closing\\E")
+          # Let’s just pretend surrounding pairs can’t be cats [🐈🐱].
           if test "$opening" = "$closing"; then
             echo "
-              hook -group auto-pairs global InsertChar $kak_quoted_opening_regex %(auto-pairs-opening-or-closing-inserted $kak_quoted_opening)
-              hook -group auto-pairs global InsertDelete $kak_quoted_opening_regex %(auto-pairs-opening-or-closing-deleted $kak_quoted_opening)
+              hook -group auto-pairs global InsertChar %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-or-closing-inserted %🐈$opening🐈🐱
+              hook -group auto-pairs global InsertDelete %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-or-closing-deleted %🐈$opening🐈🐱
             "
           else
             echo "
-              hook -group auto-pairs global InsertChar $kak_quoted_opening_regex %(auto-pairs-opening-inserted $kak_quoted_opening $kak_quoted_closing)
-              hook -group auto-pairs global InsertDelete $kak_quoted_opening_regex %(auto-pairs-opening-deleted $kak_quoted_opening $kak_quoted_closing)
-              hook -group auto-pairs global InsertChar $kak_quoted_closing_regex %(auto-pairs-closing-inserted $kak_quoted_opening $kak_quoted_closing)
-              hook -group auto-pairs global InsertDelete $kak_quoted_closing_regex %(auto-pairs-closing-deleted $kak_quoted_opening $kak_quoted_closing)
+              hook -group auto-pairs global InsertChar %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-inserted %🐈$opening🐈 %🐈$closing🐈🐱
+              hook -group auto-pairs global InsertDelete %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-deleted %🐈$opening🐈 %🐈$closing🐈🐱
+              hook -group auto-pairs global InsertChar %🐈\\Q$closing\\E🐈 %🐱auto-pairs-closing-inserted %🐈$opening🐈 %🐈$closing🐈🐱
+              hook -group auto-pairs global InsertDelete %🐈\\Q$closing\\E🐈 %🐱auto-pairs-closing-deleted %🐈$opening🐈 %🐈$closing🐈🐱
             "
           fi
         done
@@ -56,8 +53,7 @@ provide-module auto-pairs %{
           regex="$regex|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
         done
         regex=${regex#|}
-        kak_quoted_regex=$(kak_escape "$regex")
-        printf 'set-option global auto_pairs_to_regex %s\n' "$kak_quoted_regex"
+        printf 'set-option global auto_pairs_to_regex %s\n' "$regex"
       }
       build_punctuation_regex() {
         regex='['
@@ -65,17 +61,18 @@ provide-module auto-pairs %{
           regex="${regex}${punctuation}"
         done
         regex="${regex}]"
-        kak_quoted_regex=$(kak_escape "$regex")
-        printf 'set-option global auto_pairs_punctuation_marks_to_regex %s\n' "$kak_quoted_regex"
+        printf 'set-option global auto_pairs_punctuation_marks_to_regex %s\n' "$regex"
       }
-      kak_escape() {
-        for argument do
-          printf "'"
-          printf '%s' "$argument" | sed "s/'/''/g"
-          printf "'"
-          printf ' '
-        done
-      }
+      # For reference:
+      # Usage: kak_quoted_something=$(kak_escape "$something")
+      # kak_escape() {
+      #   for argument do
+      #     printf "'"
+      #     printf '%s' "$argument" | sed "s/'/''/g"
+      #     printf "'"
+      #     printf ' '
+      #   done
+      # }
       main "$@"
     }
     hook -group auto-pairs global InsertChar '\n' auto-pairs-new-line-inserted

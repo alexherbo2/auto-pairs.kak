@@ -146,8 +146,30 @@ provide-module auto-pairs %{
   # ├───────────────────────┤
   # │  ⌫   ┊  "▌"  ┊   ▌    │
   # ╰───────────────────────╯
+  #
+  # ╭───────────────────────╮
+  # │ What ┊ Input ┊ Output │
+  # ├───────────────────────┤
+  # │  ⌫   ┊ ```▌  ┊  ``▌   │
+  # ╰───────────────────────╯
+  #
+  # ╭───────────────────────╮
+  # │ What ┊ Input ┊ Output │
+  # ├───────────────────────┤
+  # │  ⌫   ┊  ""▌  ┊   ▌    │
+  # ╰───────────────────────╯
   define-command -hidden auto-pairs-opening-or-closing-deleted -params 1 %{
-    auto-pairs-opening-deleted %arg{1} %arg{1}
+    try %{
+      # Deleting in pair
+      auto-pairs-cursor-keep-fixed-string %arg{1}
+      auto-pairs-opening-deleted %arg{1} %arg{1}
+    } catch %{
+      # Deleting post pair
+      # Skip full pairs
+      auto-pairs-reject-fixed-string "%arg{1}%arg{1}" 'hH'
+      # Delete opening pair
+      auto-pairs-closing-deleted %arg{1} %arg{1}
+    } catch ''
   }
 
   # ╭───────────────────────╮
@@ -297,8 +319,11 @@ provide-module auto-pairs %{
   define-command -hidden auto-pairs-cursor-keep -params 1..2 %{
     auto-pairs-keep %arg{1} ";%arg{2}"
   }
+  define-command -hidden auto-pairs-keep-fixed-string -params 1..2 %{
+    auto-pairs-keep "\Q%arg{1}\E" %arg{2}
+  }
   define-command -hidden auto-pairs-cursor-keep-fixed-string -params 1..2 %{
-    auto-pairs-cursor-keep "\Q%arg{1}\E" %arg{2}
+    auto-pairs-keep-fixed-string %arg{1} ";%arg{2}"
   }
 
   # Reject
@@ -308,8 +333,11 @@ provide-module auto-pairs %{
   define-command -hidden auto-pairs-cursor-reject -params 1..2 %{
     auto-pairs-reject %arg{1} ";%arg{2}"
   }
+  define-command -hidden auto-pairs-reject-fixed-string -params 1..2 %{
+    auto-pairs-reject "\Q%arg{1}\E" %arg{2}
+  }
   define-command -hidden auto-pairs-cursor-reject-fixed-string -params 1..2 %{
-    auto-pairs-cursor-reject "\Q%arg{1}\E" %arg{2}
+    auto-pairs-reject-fixed-string %arg{1} ";%arg{2}"
   }
 }
 

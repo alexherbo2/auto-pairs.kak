@@ -16,15 +16,33 @@ provide-module auto-pairs %{
   # Commands ───────────────────────────────────────────────────────────────────
 
   define-command auto-pairs-enable -docstring 'Enable auto-pairs' %{
+    auto-pairs-set-option
+    auto-pairs-set-option-punctuation-marks
+    hook -group auto-pairs global InsertChar '\n' auto-pairs-new-line-inserted
+    hook -group auto-pairs global InsertDelete '\n' auto-pairs-new-line-deleted
+    hook -group auto-pairs global InsertChar ' ' auto-pairs-space-inserted
+    hook -group auto-pairs global InsertDelete ' ' auto-pairs-space-deleted
+    # Update auto-pairs on option changes
+    hook -group auto-pairs global WinSetOption auto_pairs=.* auto-pairs-set-option
+    hook -group auto-pairs global WinSetOption auto_pairs_punctuation_marks=.* auto-pairs-set-option-punctuation-marks
+  }
+
+  define-command auto-pairs-disable -docstring 'Disable auto-pairs' %{
+    remove-hooks global 'auto-pairs|auto-pairs-.+'
+  }
+
+  # Option commands ────────────────────────────────────────────────────────────
+
+  define-command -hidden auto-pairs-set-option %{
+    # Clean hooks
+    remove-hooks global auto-pairs-characters
     # Generate hooks for auto-paired characters.
-    # Also build regexes for matching a surrounding pair and punctuation marks.
+    # Build regex for matching a surrounding pair.
     evaluate-commands %sh{
       main() {
         eval "set -- $kak_quoted_opt_auto_pairs"
         build_hooks "$@"
         build_regex "$@"
-        eval "set -- $kak_quoted_opt_auto_pairs_punctuation_marks"
-        build_punctuation_regex "$@"
       }
       build_hooks() {
         while test $# -ge 2; do
@@ -33,15 +51,15 @@ provide-module auto-pairs %{
           # Let’s just pretend surrounding pairs can’t be cats [🐈🐱].
           if test "$opening" = "$closing"; then
             echo "
-              hook -group auto-pairs global InsertChar %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-or-closing-inserted %🐈$opening🐈🐱
-              hook -group auto-pairs global InsertDelete %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-or-closing-deleted %🐈$opening🐈🐱
+              hook -group auto-pairs-characters global InsertChar %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-or-closing-inserted %🐈$opening🐈🐱
+              hook -group auto-pairs-characters global InsertDelete %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-or-closing-deleted %🐈$opening🐈🐱
             "
           else
             echo "
-              hook -group auto-pairs global InsertChar %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-inserted %🐈$opening🐈 %🐈$closing🐈🐱
-              hook -group auto-pairs global InsertDelete %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-deleted %🐈$opening🐈 %🐈$closing🐈🐱
-              hook -group auto-pairs global InsertChar %🐈\\Q$closing\\E🐈 %🐱auto-pairs-closing-inserted %🐈$opening🐈 %🐈$closing🐈🐱
-              hook -group auto-pairs global InsertDelete %🐈\\Q$closing\\E🐈 %🐱auto-pairs-closing-deleted %🐈$opening🐈 %🐈$closing🐈🐱
+              hook -group auto-pairs-characters global InsertChar %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-inserted %🐈$opening🐈 %🐈$closing🐈🐱
+              hook -group auto-pairs-characters global InsertDelete %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-deleted %🐈$opening🐈 %🐈$closing🐈🐱
+              hook -group auto-pairs-characters global InsertChar %🐈\\Q$closing\\E🐈 %🐱auto-pairs-closing-inserted %🐈$opening🐈 %🐈$closing🐈🐱
+              hook -group auto-pairs-characters global InsertDelete %🐈\\Q$closing\\E🐈 %🐱auto-pairs-closing-deleted %🐈$opening🐈 %🐈$closing🐈🐱
             "
           fi
         done
@@ -56,39 +74,21 @@ provide-module auto-pairs %{
         regex=${regex#|}
         printf 'set-option global auto_pairs_to_regex %s\n' "$regex"
       }
-      build_punctuation_regex() {
-        regex='['
-        for punctuation do
-          regex="${regex}${punctuation}"
-        done
-        regex="${regex}]"
-        printf 'set-option global auto_pairs_punctuation_marks_to_regex %s\n' "$regex"
-      }
-      # For reference:
-      # Usage: kak_quoted_something=$(kak_escape "$something")
-      # kak_escape() {
-      #   for argument do
-      #     printf "'"
-      #     printf '%s' "$argument" | sed "s/'/''/g"
-      #     printf "'"
-      #     printf ' '
-      #   done
-      # }
       main "$@"
-    }
-    hook -group auto-pairs global InsertChar '\n' auto-pairs-new-line-inserted
-    hook -group auto-pairs global InsertDelete '\n' auto-pairs-new-line-deleted
-    hook -group auto-pairs global InsertChar ' ' auto-pairs-space-inserted
-    hook -group auto-pairs global InsertDelete ' ' auto-pairs-space-deleted
-    # Update auto-pairs on option changes
-    hook -group auto-pairs global WinSetOption '(auto_pairs|auto_pairs_punctuation_marks)=.*' %{
-      auto-pairs-disable
-      auto-pairs-enable
     }
   }
 
-  define-command auto-pairs-disable -docstring 'Disable auto-pairs' %{
-    remove-hooks global auto-pairs
+  define-command -hidden auto-pairs-set-option-punctuation-marks %{
+    # Build regex for matching punctuation marks.
+    set-option global auto_pairs_punctuation_marks_to_regex %sh{
+      eval "set -- $kak_quoted_opt_auto_pairs_punctuation_marks"
+      regex='['
+      for punctuation do
+        regex="${regex}${punctuation}"
+      done
+      regex="${regex}]"
+      printf '%s' "$regex"
+    }
   }
 
   # Implementation commands ────────────────────────────────────────────────────

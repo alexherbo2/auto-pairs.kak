@@ -137,7 +137,7 @@ provide-module auto-pairs %{
     try %{
       auto-pairs-cursor-keep-fixed-string %arg{2}
       execute-keys '<backspace>'
-      auto-pairs-move-in-pair
+      auto-pairs-move-right-in-pair
     }
   }
 
@@ -267,17 +267,7 @@ provide-module auto-pairs %{
   define-command -hidden auto-pairs-insert-character-in-pair -params 1 %{
     auto-pairs-insert-character %arg{1}
     # Jump backwards in pair, before inserting.
-    # If something is selected (i.e. the selection is not just the cursor),
-    # preserve the anchor position.
-    try %{
-      # Test if extending
-      execute-keys -draft '<a-k>.{2,}<ret>'
-      # Preserve anchor position
-      execute-keys '<a-;>H'
-    } catch %{
-      # Jump without preserving
-      execute-keys '<a-;>h'
-    }
+    auto-pairs-move-left-in-pair
   }
 
   define-command -hidden auto-pairs-insert-character -params 1 %{
@@ -288,15 +278,24 @@ provide-module auto-pairs %{
     }
   }
 
-  define-command -hidden auto-pairs-move-in-pair %{
+  # Move in pair
+  define-command -hidden auto-pairs-move-left-in-pair %{
+    auto-pairs-move-in-pair-implementation 'h' 'H'
+  }
+  define-command -hidden auto-pairs-move-right-in-pair %{
+    auto-pairs-move-in-pair-implementation 'l' 'L'
+  }
+  define-command -hidden auto-pairs-move-in-pair-implementation -params 2 %{
+    # If something is selected (i.e. the selection is not just the cursor),
+    # preserve the anchor position.
     try %{
       # Test if extending
       execute-keys -draft '<a-k>.{2,}<ret>'
       # Preserve anchor position
-      execute-keys '<a-;>L'
+      execute-keys '<a-;>' %arg{2}
     } catch %{
       # Jump without preserving
-      execute-keys '<a-;>l'
+      execute-keys '<a-;>' %arg{1}
     }
   }
 

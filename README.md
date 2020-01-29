@@ -40,4 +40,7 @@ Double angle quotation mark: « »
 Single angle quotation mark: ‹ ›
 ```
 
+See also [surround.kak].
+
 [Kakoune]: https://kakoune.org
+[surround.kak]: https://github.com/alexherbo2/surround.kak

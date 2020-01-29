@@ -124,7 +124,7 @@ provide-module auto-pairs %{
       #    ‾ ‾
       auto-pairs-reject "\A\w%opt{auto_pairs_punctuation_marks_to_regex}|%opt{auto_pairs_punctuation_marks_to_regex}\w\z" ';2H'
       # Insert the closing pair
-      auto-pairs-insert-text-in-pair %arg{2}
+      auto-pairs-insert-character-in-pair %arg{2}
     }
   }
 
@@ -241,7 +241,7 @@ provide-module auto-pairs %{
     try %{
       # Test surrounding line content.
       auto-pairs-keep-surrounding-pair ';<a-/>\H<ret>?\H<ret>'
-      auto-pairs-insert-text-in-pair ' '
+      auto-pairs-insert-character-in-pair ' '
     }
   }
 
@@ -264,28 +264,23 @@ provide-module auto-pairs %{
     auto-pairs-keep %opt{auto_pairs_to_regex} %arg{1}
   }
 
-  define-command -hidden auto-pairs-insert-text-in-pair -params 1 %{
-    auto-pairs-insert-text %arg{1}
+  define-command -hidden auto-pairs-insert-character-in-pair -params 1 %{
+    auto-pairs-insert-character %arg{1}
     # Jump backwards in pair, before inserting.
     # If something is selected (i.e. the selection is not just the cursor),
     # preserve the anchor position.
-    evaluate-commands -save-regs 'l' %{
-      # Length of inserted text
-      # Note: ${#1} is unreliable with UTF-8.
-      set-register l %sh(printf '%s' "$1" | wc -m)
-      try %{
-        # Test if extending
-        execute-keys -draft '<a-k>.{2,}<ret>'
-        # Preserve anchor position
-        execute-keys "<a-;>%reg{l}H"
-      } catch %{
-        # Jump without preserving
-        execute-keys "<a-;>%reg{l}h"
-      }
+    try %{
+      # Test if extending
+      execute-keys -draft '<a-k>.{2,}<ret>'
+      # Preserve anchor position
+      execute-keys '<a-;>H'
+    } catch %{
+      # Jump without preserving
+      execute-keys '<a-;>h'
     }
   }
 
-  define-command -hidden auto-pairs-insert-text -params 1 %{
+  define-command -hidden auto-pairs-insert-character -params 1 %{
     # A bit verbose, but more robust than passing text to execute-keys.
     evaluate-commands -save-regs '"' %{
       set-register '"' %arg{1}

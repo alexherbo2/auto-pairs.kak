@@ -3,8 +3,8 @@
 Auto-paired characters for [Kakoune].
 
 When inserting an opening pair, auto-pairs always inserts the closing pair,
-unless when preceded by a **backslash**, and for punctuation marks (such as
-**apostrophes**), when surrounded by word characters.
+unless when under a word character or preceded by a **backslash**, and for non
+nestable characters (such as **apostrophes**), when preceded by word characters.
 
 Auto-pairing is also about pair navigation and editing (deleting existing pairs
 and formatting in pair).  It can move in pair `(▌)`, delete in pair `(▌)` and

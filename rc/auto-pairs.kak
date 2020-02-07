@@ -7,23 +7,20 @@ provide-module auto-pairs %{
   # Options ────────────────────────────────────────────────────────────────────
 
   declare-option -docstring 'List of surrounding pairs' str-list auto_pairs ( ) { } [ ] '"' '"' "'" "'" ` ` “ ” ‘ ’ « » ‹ ›
-  declare-option -docstring 'List of punctuation marks' str-list auto_pairs_punctuation_marks "'"
 
-  declare-option -hidden str auto_pairs_to_regex
-  declare-option -hidden str auto_pairs_punctuation_marks_to_regex
+  declare-option -hidden str auto_pairs_match_pair
+  declare-option -hidden str auto_pairs_match_nestable_pair
 
   # Commands ───────────────────────────────────────────────────────────────────
 
   define-command auto-pairs-enable -docstring 'Enable auto-pairs' %{
     auto-pairs-set-option
-    auto-pairs-set-option-punctuation-marks
     hook -group auto-pairs global InsertChar '\n' auto-pairs-new-line-inserted
     hook -group auto-pairs global InsertDelete '\n' auto-pairs-new-line-deleted
     hook -group auto-pairs global InsertChar ' ' auto-pairs-space-inserted
     hook -group auto-pairs global InsertDelete ' ' auto-pairs-space-deleted
     # Update auto-pairs on option changes
     hook -group auto-pairs global WinSetOption auto_pairs=.* auto-pairs-set-option
-    hook -group auto-pairs global WinSetOption auto_pairs_punctuation_marks=.* auto-pairs-set-option-punctuation-marks
   }
 
   define-command auto-pairs-disable -docstring 'Disable auto-pairs' %{
@@ -36,12 +33,12 @@ provide-module auto-pairs %{
     # Clean hooks
     remove-hooks global auto-pairs-characters
     # Generate hooks for auto-paired characters.
-    # Build regex for matching a surrounding pair.
+    # Build regexes for matching a surrounding pair.
     evaluate-commands %sh{
       main() {
         eval "set -- $kak_quoted_opt_auto_pairs"
         build_hooks "$@"
-        build_regex "$@"
+        build_regexes "$@"
       }
       build_hooks() {
         while test $# -ge 2; do
@@ -63,30 +60,23 @@ provide-module auto-pairs %{
           fi
         done
       }
-      build_regex() {
-        regex=''
+      build_regexes() {
+        match_pair=''
+        match_nestable_pair=''
         while test $# -ge 2; do
           opening=$1 closing=$2
           shift 2
-          regex="$regex|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
+          match_pair="$match_pair|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
+          if test "$opening" != "$closing"; then
+            match_nestable_pair="$match_nestable_pair|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
+          fi
         done
-        regex=${regex#|}
-        printf 'set-option global auto_pairs_to_regex %s\n' "$regex"
+        match_pair=${match_pair#|}
+        match_nestable_pair=${match_nestable_pair#|}
+        printf 'set-option global auto_pairs_match_pair %s\n' "$match_pair"
+        printf 'set-option global auto_pairs_match_nestable_pair %s\n' "$match_nestable_pair"
       }
       main "$@"
-    }
-  }
-
-  define-command -hidden auto-pairs-set-option-punctuation-marks %{
-    # Build regex for matching punctuation marks.
-    set-option global auto_pairs_punctuation_marks_to_regex %sh{
-      eval "set -- $kak_quoted_opt_auto_pairs_punctuation_marks"
-      regex='['
-      for punctuation do
-        regex="${regex}${punctuation}"
-      done
-      regex="${regex}]"
-      printf '%s' "$regex"
     }
   }
 
@@ -106,6 +96,10 @@ provide-module auto-pairs %{
       # Case 3: Skip post pair
       auto-pairs-cursor-reject-fixed-string %arg{1} '2h'
       # Case 1: Opening inserted
+      # Skip if preceded by word characters
+      # JoJo's Bizarre Adventure
+      #    ‾ ‾
+      auto-pairs-reject "\w\Q%arg{1}\E" 'hH'
       auto-pairs-opening-inserted %arg{1} %arg{1}
     } catch ''
   }
@@ -119,10 +113,10 @@ provide-module auto-pairs %{
     try %{
       # Skip escaped pairs
       auto-pairs-cursor-reject-fixed-string '\' '2h'
-      # Abort if opening pair is a punctuation mark and surrounded by word characters
-      # JoJo's Bizarre Adventure
-      #    ‾ ‾
-      auto-pairs-reject "\A\w%opt{auto_pairs_punctuation_marks_to_regex}|%opt{auto_pairs_punctuation_marks_to_regex}\w\z" ';2H'
+      # Skip cursor under words
+      # (JoJo
+      #  ‾
+      auto-pairs-cursor-reject '\w'
       # Insert the closing pair
       auto-pairs-insert-character-in-pair %arg{2}
     }
@@ -240,7 +234,7 @@ provide-module auto-pairs %{
   define-command -hidden auto-pairs-space-inserted %{
     try %{
       # Test surrounding line content.
-      auto-pairs-keep-surrounding-pair ';<a-/>\H<ret>?\H<ret>'
+      auto-pairs-keep-nestable-pair ';<a-/>\H<ret>?\H<ret>'
       auto-pairs-insert-character-in-pair ' '
     }
   }
@@ -253,7 +247,7 @@ provide-module auto-pairs %{
   define-command -hidden auto-pairs-space-deleted %{
     try %{
       # Test surrounding line content.
-      auto-pairs-keep-surrounding-pair ';<a-/>\H<ret>?\H<ret>'
+      auto-pairs-keep-nestable-pair ';<a-/>\H<ret>?\H<ret>'
       execute-keys '<del>'
     }
   }
@@ -261,7 +255,11 @@ provide-module auto-pairs %{
   # Utility commands ───────────────────────────────────────────────────────────
 
   define-command -hidden auto-pairs-keep-surrounding-pair -params ..1 %{
-    auto-pairs-keep %opt{auto_pairs_to_regex} %arg{1}
+    auto-pairs-keep %opt{auto_pairs_match_pair} %arg{1}
+  }
+
+  define-command -hidden auto-pairs-keep-nestable-pair -params ..1 %{
+    auto-pairs-keep %opt{auto_pairs_match_nestable_pair} %arg{1}
   }
 
   define-command -hidden auto-pairs-insert-character-in-pair -params 1 %{

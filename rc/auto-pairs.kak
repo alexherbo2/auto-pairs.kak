@@ -35,48 +35,35 @@ provide-module auto-pairs %{
     # Generate hooks for auto-paired characters.
     # Build regexes for matching a surrounding pair.
     evaluate-commands %sh{
-      main() {
-        eval "set -- $kak_quoted_opt_auto_pairs"
-        build_hooks "$@"
-        build_regexes "$@"
-      }
-      build_hooks() {
-        while test $# -ge 2; do
-          opening=$1 closing=$2
-          shift 2
-          # Let’s just pretend surrounding pairs can’t be cats [🐈🐱].
-          if test "$opening" = "$closing"; then
-            echo "
-              hook -group auto-pairs-characters global InsertChar %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-or-closing-inserted %🐈$opening🐈🐱
-              hook -group auto-pairs-characters global InsertDelete %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-or-closing-deleted %🐈$opening🐈🐱
-            "
-          else
-            echo "
-              hook -group auto-pairs-characters global InsertChar %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-inserted %🐈$opening🐈 %🐈$closing🐈🐱
-              hook -group auto-pairs-characters global InsertDelete %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-deleted %🐈$opening🐈 %🐈$closing🐈🐱
-              hook -group auto-pairs-characters global InsertChar %🐈\\Q$closing\\E🐈 %🐱auto-pairs-closing-inserted %🐈$opening🐈 %🐈$closing🐈🐱
-              hook -group auto-pairs-characters global InsertDelete %🐈\\Q$closing\\E🐈 %🐱auto-pairs-closing-deleted %🐈$opening🐈 %🐈$closing🐈🐱
-            "
-          fi
-        done
-      }
-      build_regexes() {
-        match_pair=''
-        match_nestable_pair=''
-        while test $# -ge 2; do
-          opening=$1 closing=$2
-          shift 2
-          match_pair="$match_pair|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
-          if test "$opening" != "$closing"; then
-            match_nestable_pair="$match_nestable_pair|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
-          fi
-        done
-        match_pair=${match_pair#|}
-        match_nestable_pair=${match_nestable_pair#|}
-        printf 'set-option global auto_pairs_match_pair %s\n' "$match_pair"
-        printf 'set-option global auto_pairs_match_nestable_pair %s\n' "$match_nestable_pair"
-      }
-      main "$@"
+      eval "set -- $kak_quoted_opt_auto_pairs"
+      # Regexes
+      match_pair=''
+      match_nestable_pair=''
+      while test $# -ge 2; do
+        opening=$1 closing=$2
+        shift 2
+        # Let’s just pretend surrounding pairs can’t be cats [🐈🐱].
+        if test "$opening" = "$closing"; then
+          echo "
+            hook -group auto-pairs-characters global InsertChar %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-or-closing-inserted %🐈$opening🐈🐱
+            hook -group auto-pairs-characters global InsertDelete %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-or-closing-deleted %🐈$opening🐈🐱
+          "
+        else
+          echo "
+            hook -group auto-pairs-characters global InsertChar %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-inserted %🐈$opening🐈 %🐈$closing🐈🐱
+            hook -group auto-pairs-characters global InsertDelete %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-deleted %🐈$opening🐈 %🐈$closing🐈🐱
+            hook -group auto-pairs-characters global InsertChar %🐈\\Q$closing\\E🐈 %🐱auto-pairs-closing-inserted %🐈$opening🐈 %🐈$closing🐈🐱
+            hook -group auto-pairs-characters global InsertDelete %🐈\\Q$closing\\E🐈 %🐱auto-pairs-closing-deleted %🐈$opening🐈 %🐈$closing🐈🐱
+          "
+          match_nestable_pair="$match_nestable_pair|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
+        fi
+        match_pair="$match_pair|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
+      done
+      # Set regex options
+      match_pair=${match_pair#|}
+      match_nestable_pair=${match_nestable_pair#|}
+      printf 'set-option global auto_pairs_match_pair %s\n' "$match_pair"
+      printf 'set-option global auto_pairs_match_nestable_pair %s\n' "$match_nestable_pair"
     }
   }
 

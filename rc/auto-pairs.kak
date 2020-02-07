@@ -44,17 +44,23 @@ provide-module auto-pairs %{
         shift 2
         # Let’s just pretend surrounding pairs can’t be cats [🐈🐱].
         if test "$opening" = "$closing"; then
-          echo "
-            hook -group auto-pairs-characters global InsertChar %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-or-closing-inserted %🐈$opening🐈🐱
-            hook -group auto-pairs-characters global InsertDelete %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-or-closing-deleted %🐈$opening🐈🐱
-          "
+          printf '
+            hook -group auto-pairs-characters global InsertChar %%🐈\\Q%s\\E🐈 %%🐱auto-pairs-opening-or-closing-inserted %%🐈%s🐈🐱
+            hook -group auto-pairs-characters global InsertDelete %%🐈\\Q%s\\E🐈 %%🐱auto-pairs-opening-or-closing-deleted %%🐈%s🐈🐱
+          ' \
+            "$opening" "$opening" \
+            "$opening" "$opening"
         else
-          echo "
-            hook -group auto-pairs-characters global InsertChar %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-inserted %🐈$opening🐈 %🐈$closing🐈🐱
-            hook -group auto-pairs-characters global InsertDelete %🐈\\Q$opening\\E🐈 %🐱auto-pairs-opening-deleted %🐈$opening🐈 %🐈$closing🐈🐱
-            hook -group auto-pairs-characters global InsertChar %🐈\\Q$closing\\E🐈 %🐱auto-pairs-closing-inserted %🐈$opening🐈 %🐈$closing🐈🐱
-            hook -group auto-pairs-characters global InsertDelete %🐈\\Q$closing\\E🐈 %🐱auto-pairs-closing-deleted %🐈$opening🐈 %🐈$closing🐈🐱
-          "
+          printf '
+            hook -group auto-pairs-characters global InsertChar %%🐈\\Q%s\\E🐈 %%🐱auto-pairs-opening-inserted %%🐈%s🐈 %%🐈%s🐈🐱
+            hook -group auto-pairs-characters global InsertDelete %%🐈\\Q%s\\E🐈 %%🐱auto-pairs-opening-deleted %%🐈%s🐈 %%🐈%s🐈🐱
+            hook -group auto-pairs-characters global InsertChar %%🐈\\Q%s\\E🐈 %%🐱auto-pairs-closing-inserted %%🐈%s🐈 %%🐈%s🐈🐱
+            hook -group auto-pairs-characters global InsertDelete %%🐈\\Q%s\\E🐈 %%🐱auto-pairs-closing-deleted %%🐈%s🐈 %%🐈%s🐈🐱
+          ' \
+            "$opening" "$opening" "$closing" \
+            "$opening" "$opening" "$closing" \
+            "$closing" "$opening" "$closing" \
+            "$closing" "$opening" "$closing"
           match_nestable_pair="$match_nestable_pair|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
         fi
         match_pair="$match_pair|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"

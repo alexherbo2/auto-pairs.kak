@@ -25,7 +25,7 @@ Auto-paired characters can be changed via the `auto_pairs` option.
 
 ## Surrounding pairs
 
-By default, `auto_pairs` includes the following surrounding pairs.
+By default, `auto_pairs` includes the following surrounding pairs:
 
 ```
 Parenthesis block: ( )

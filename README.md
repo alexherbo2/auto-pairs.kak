@@ -14,6 +14,12 @@ When inserting an auto-paired character, if the opening and closing characters
 are the same (such as double quote strings), auto-pairs will move right in pair
 `"▌"` and skip additional pairing post pair `"▌`.
 
+## Dependencies
+
+- [prelude.kak]
+
+[prelude.kak]: https://github.com/alexherbo2/prelude.kak
+
 ## Installation
 
 Add [`auto-pairs.kak`](rc/auto-pairs.kak) to your autoload or source it manually.

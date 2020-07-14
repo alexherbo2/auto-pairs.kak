@@ -4,6 +4,10 @@ hook global ModuleLoaded auto-pairs %{
 
 provide-module auto-pairs %{
 
+  # Modules ────────────────────────────────────────────────────────────────────
+
+  require-module prelude
+
   # Options ────────────────────────────────────────────────────────────────────
 
   declare-option -docstring 'List of surrounding pairs' str-list auto_pairs ( ) { } [ ] '"' '"' "'" "'" ` ` “ ” ‘ ’ « » ‹ ›

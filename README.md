@@ -8,7 +8,15 @@ nestable characters (such as **apostrophes**), when preceded by word characters.
 
 Auto-pairing is also about pair navigation and editing (deleting existing pairs
 and formatting in pair).  It can move in pair `(▌)`, delete in pair `(▌)` and
-post pair `()▌`, and pad in pair horizontally `(␣▌␣)` and vertically `{⏎}`.
+post pair `()▌`, and pad in pair horizontally `(␣▌␣)` and vertically:
+```
+    …
+    foobar {
+        ▌
+    }
+    …
+```
+.
 
 When inserting an auto-paired character, if the opening and closing characters
 are the same (such as double quote strings), auto-pairs will move right in pair

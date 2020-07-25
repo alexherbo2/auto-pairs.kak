@@ -158,9 +158,8 @@ provide-module auto-pairs %{
       # main() {
       #   ▌
       # }
-      execute-keys -with-hooks '<ret>'
-      execute-keys '<esc>'
-      execute-keys -with-hooks 'O'
+      execute-keys '<ret><ret><esc>KK<a-&>j<a-gt>A<esc>'
+      execute-keys -with-hooks 'i'
     } catch %{
       execute-keys -with-hooks '<ret>'
     }

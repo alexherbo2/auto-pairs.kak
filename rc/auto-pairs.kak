@@ -34,7 +34,7 @@ provide-module auto-pairs %{
   define-command auto-pairs-disable -docstring 'Disable auto-pairs' %{
     # Remove mappings
     evaluate-commands %sh{
-      . "$kak_opt_prelude"
+      . "$kak_opt_prelude_path"
       eval "set -- $kak_quoted_opt_auto_pairs"
       for key do
         kak_escape unmap global insert "$key"
@@ -56,7 +56,7 @@ provide-module auto-pairs %{
     # Create mappings for auto-paired characters.
     # Build regexes for matching surrounding pairs.
     evaluate-commands %sh{
-      . "$kak_opt_prelude"
+      . "$kak_opt_prelude_path"
       # Remove mappings from the previous set.
       eval "set -- $kak_quoted_opt_auto_pairs_saved_pairs"
       for key do

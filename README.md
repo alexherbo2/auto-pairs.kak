@@ -38,9 +38,13 @@ are the same (such as double quote strings), auto-pairs will move right in pair
 
 Add [`auto-pairs.kak`](rc/auto-pairs.kak) to your autoload or source it manually.
 
+``` kak
+require-module auto-pairs
+```
+
 ## Usage
 
-Enable auto-pairs (enabled by default) with `auto-pairs-enable`.
+Enable auto-pairs with `auto-pairs-enable`.
 Auto-paired characters can be changed via the `auto_pairs` option.
 
 ## Surrounding pairs

@@ -1,7 +1,3 @@
-hook global ModuleLoaded auto-pairs %{
-  auto-pairs-enable
-}
-
 provide-module auto-pairs %{
 
   # Modules ────────────────────────────────────────────────────────────────────
@@ -331,5 +327,3 @@ provide-module auto-pairs %{
     auto-pairs-reject-fixed-string %arg{1} ";%arg{2}"
   }
 }
-
-require-module auto-pairs

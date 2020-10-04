@@ -20,7 +20,7 @@ provide-module auto-pairs %{
     map global insert <ret> '<a-;>: auto-pairs-insert-new-line<ret>'
     map global insert <space> '<a-;>: auto-pairs-insert-space<ret>'
     map global insert <backspace> '<a-;>: auto-pairs-delete-with-backspace<ret>'
-    map global insert <del> '<a-;>: auto-pairs-delete-with-delete<ret>'
+    # map global insert <del> '<a-;>: auto-pairs-delete-with-delete<ret>'
     # Update auto-pairs on option changes
     hook -group auto-pairs global WinSetOption auto_pairs=.* %{
       auto-pairs-save-settings
@@ -39,7 +39,7 @@ provide-module auto-pairs %{
     unmap global insert <ret>
     unmap global insert <space>
     unmap global insert <backspace>
-    unmap global insert <del>
+    # unmap global insert <del>
     # Unset options
     set-option global auto_pairs_saved_pairs
     set-option global auto_pairs_match_pairs ''

@@ -30,9 +30,9 @@ are the same (such as double quote strings), auto-pairs will move right in pair
 
 ## Dependencies
 
-- [prelude.kak]
+- [kakoune.cr]
 
-[prelude.kak]: https://github.com/alexherbo2/prelude.kak
+[kakoune.cr]: https://github.com/alexherbo2/kakoune.cr
 
 ## Installation
 

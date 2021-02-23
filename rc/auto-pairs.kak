@@ -1,9 +1,5 @@
 provide-module auto-pairs %{
 
-  # Modules ────────────────────────────────────────────────────────────────────
-
-  require-module prelude
-
   # Options ────────────────────────────────────────────────────────────────────
 
   declare-option -docstring 'List of surrounding pairs' str-list auto_pairs ( ) { } [ ] '"' '"' "'" "'" ` ` “ ” ‘ ’ « » ‹ ›
@@ -30,10 +26,9 @@ provide-module auto-pairs %{
   define-command auto-pairs-disable -docstring 'Disable auto-pairs' %{
     # Remove mappings
     evaluate-commands %sh{
-      . "$kak_opt_prelude_path"
       eval "set -- $kak_quoted_opt_auto_pairs"
       for key do
-        kak_escape unmap global insert "$key"
+        kcr escape -- unmap global insert "$key"
       done
     }
     unmap global insert <ret>
@@ -52,11 +47,10 @@ provide-module auto-pairs %{
     # Create mappings for auto-paired characters.
     # Build regexes for matching surrounding pairs.
     evaluate-commands %sh{
-      . "$kak_opt_prelude_path"
       # Remove mappings from the previous set.
       eval "set -- $kak_quoted_opt_auto_pairs_saved_pairs"
       for key do
-        kak_escape unmap global insert "$key"
+        kcr escape -- unmap global insert "$key"
       done
       # Initialization
       eval "set -- $kak_quoted_opt_auto_pairs"
@@ -68,13 +62,13 @@ provide-module auto-pairs %{
         shift 2
         # Create mappings for auto-paired characters.
         if test "$opening" = "$closing"; then
-          auto_pairs_insert_pairing=$(kak_escape auto-pairs-insert-pairing "$opening" "$closing")
-          kak_escape map global insert "$opening" "<a-;>: $auto_pairs_insert_pairing<ret>"
+          auto_pairs_insert_pairing=$(kcr escape -- auto-pairs-insert-pairing "$opening" "$closing")
+          kcr escape -- map global insert "$opening" "<a-;>: $auto_pairs_insert_pairing<ret>"
         else
-          auto_pairs_insert_opening=$(kak_escape auto-pairs-insert-opening "$opening" "$closing")
-          auto_pairs_insert_closing=$(kak_escape auto-pairs-insert-closing "$opening" "$closing")
-          kak_escape map global insert "$opening" "<a-;>: $auto_pairs_insert_opening<ret>"
-          kak_escape map global insert "$closing" "<a-;>: $auto_pairs_insert_closing<ret>"
+          auto_pairs_insert_opening=$(kcr escape -- auto-pairs-insert-opening "$opening" "$closing")
+          auto_pairs_insert_closing=$(kcr escape -- auto-pairs-insert-closing "$opening" "$closing")
+          kcr escape -- map global insert "$opening" "<a-;>: $auto_pairs_insert_opening<ret>"
+          kcr escape -- map global insert "$closing" "<a-;>: $auto_pairs_insert_closing<ret>"
           # Build regex for matching nestable pairs.
           match_nestable_pairs="$match_nestable_pairs|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
         fi
@@ -84,8 +78,8 @@ provide-module auto-pairs %{
       # Set regex options
       match_pairs=${match_pairs#|}
       match_nestable_pairs=${match_nestable_pairs#|}
-      kak_escape set-option global auto_pairs_match_pairs "$match_pairs"
-      kak_escape set-option global auto_pairs_match_nestable_pairs "$match_nestable_pairs"
+      kcr escape -- set-option global auto_pairs_match_pairs "$match_pairs"
+      kcr escape -- set-option global auto_pairs_match_nestable_pairs "$match_nestable_pairs"
     }
     # Save surrounding pairs
     set-option global auto_pairs_saved_pairs %opt{auto_pairs}

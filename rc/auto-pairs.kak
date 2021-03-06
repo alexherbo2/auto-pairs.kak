@@ -25,11 +25,10 @@ provide-module auto-pairs %{
 
   define-command auto-pairs-disable -docstring 'Disable auto-pairs' %{
     # Remove mappings
-    evaluate-commands %sh{
-      eval "set -- $kak_quoted_opt_auto_pairs"
-      for key do
-        kcr escape -- unmap global insert "$key"
-      done
+    $ sh -c %{
+      kcr get %opt{auto_pairs} |
+      jq 'map(["unmap", "global", "insert", .])' |
+      kcr send
     }
     unmap global insert <ret>
     unmap global insert <space>
@@ -44,42 +43,54 @@ provide-module auto-pairs %{
   # Option commands ────────────────────────────────────────────────────────────
 
   define-command -hidden auto-pairs-save-settings %{
-    # Create mappings for auto-paired characters.
-    # Build regexes for matching surrounding pairs.
-    evaluate-commands %sh{
-      # Remove mappings from the previous set.
-      eval "set -- $kak_quoted_opt_auto_pairs_saved_pairs"
-      for key do
-        kcr escape -- unmap global insert "$key"
-      done
-      # Initialization
-      eval "set -- $kak_quoted_opt_auto_pairs"
-      # Regexes
-      match_pairs=''
-      match_nestable_pairs=''
-      while test $# -ge 2; do
-        opening=$1 closing=$2
-        shift 2
-        # Create mappings for auto-paired characters.
-        if test "$opening" = "$closing"; then
-          auto_pairs_insert_pairing=$(kcr escape -- auto-pairs-insert-pairing "$opening" "$closing")
-          kcr escape -- map global insert "$opening" "<a-;>: $auto_pairs_insert_pairing<ret>"
-        else
-          auto_pairs_insert_opening=$(kcr escape -- auto-pairs-insert-opening "$opening" "$closing")
-          auto_pairs_insert_closing=$(kcr escape -- auto-pairs-insert-closing "$opening" "$closing")
-          kcr escape -- map global insert "$opening" "<a-;>: $auto_pairs_insert_opening<ret>"
-          kcr escape -- map global insert "$closing" "<a-;>: $auto_pairs_insert_closing<ret>"
+    $ sh -c %{
+      kcr get %opt{auto_pairs} |
+      kcr get %opt{auto_pairs_saved_pairs} |
+      jq --slurp '
+        [.[0] | _nwise(2)] as $pairs |
+        [.[1] | _nwise(2)] as $saved_pairs |
+
+        [
+          # Remove mappings from the previous set.
+          (
+            $saved_pairs[] as [$opening, $closing] |
+
+            ["unmap", "global", "insert", $opening],
+            ["unmap", "global", "insert", $closing]
+          ),
+
+          # Create mappings for auto-paired characters.
+          (
+            $pairs[] as [$opening, $closing] |
+
+            if $opening == $closing then
+              ["map", "global", "insert", $opening, "<a-;>: {}<ret>"],
+              ["auto-pairs-insert-pairing", $opening, $closing]
+            else
+              ["map", "global", "insert", $opening, "<a-;>: {}<ret>"],
+              ["auto-pairs-insert-opening", $opening, $closing],
+
+              ["map", "global", "insert", $closing, "<a-;>: {}<ret>"],
+              ["auto-pairs-insert-closing", $opening, $closing]
+            end
+          ),
+
+          # Build regex for matching surrounding pairs.
+          (
+            [$pairs[] as [$opening, $closing] | "(\\A\\Q\($opening)\\E\\s*\\Q\($closing)\\E\\z)"] | join("|") as $match_pairs |
+
+            ["set-option", "global", "auto_pairs_match_pairs", $match_pairs]
+          ),
+
           # Build regex for matching nestable pairs.
-          match_nestable_pairs="$match_nestable_pairs|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
-        fi
-        # Build regex for matching surrounding pairs.
-        match_pairs="$match_pairs|(\\A\\Q$opening\\E\s*\\Q$closing\\E\\z)"
-      done
-      # Set regex options
-      match_pairs=${match_pairs#|}
-      match_nestable_pairs=${match_nestable_pairs#|}
-      kcr escape -- set-option global auto_pairs_match_pairs "$match_pairs"
-      kcr escape -- set-option global auto_pairs_match_nestable_pairs "$match_nestable_pairs"
+          (
+            [$pairs[] as [$opening, $closing] | select($opening != $closing) | "(\\A\\Q\($opening)\\E\\s*\\Q\($closing)\\E\\z)"] | join("|") as $match_nestable_pairs |
+
+            ["set-option", "global", "auto_pairs_match_nestable_pairs", $match_nestable_pairs]
+          )
+        ]
+      ' |
+      kcr send
     }
     # Save surrounding pairs
     set-option global auto_pairs_saved_pairs %opt{auto_pairs}

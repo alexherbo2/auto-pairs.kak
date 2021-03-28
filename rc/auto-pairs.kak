@@ -28,7 +28,7 @@ provide-module auto-pairs %{
     $ sh -c %{
       kcr get %opt{auto_pairs} |
       jq 'map(["unmap", "global", "insert", .])' |
-      kcr send
+      kcr send -
     }
     unmap global insert <ret>
     unmap global insert <space>
@@ -45,7 +45,7 @@ provide-module auto-pairs %{
   define-command -hidden auto-pairs-save-settings %{
     $ sh -c %{
       kcr get %opt{auto_pairs} |
-      kcr get %opt{auto_pairs_saved_pairs} |
+      kcr get - %opt{auto_pairs_saved_pairs} |
       jq --slurp '
         [.[0] | _nwise(2)] as $pairs |
         [.[1] | _nwise(2)] as $saved_pairs |
@@ -90,7 +90,7 @@ provide-module auto-pairs %{
           )
         ]
       ' |
-      kcr send
+      kcr send -
     }
     # Save surrounding pairs
     set-option global auto_pairs_saved_pairs %opt{auto_pairs}

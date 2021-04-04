@@ -25,10 +25,10 @@ provide-module auto-pairs %{
 
   define-command auto-pairs-disable -docstring 'Disable auto-pairs' %{
     # Remove mappings
-    $ sh -c %{
-      kcr get %opt{auto_pairs} |
-      jq 'map(["unmap", "global", "insert", .])' |
-      kcr send -
+    evaluate-commands %sh{
+      echo "${kak_opt_auto_pairs}" |
+	  jq -R '. | split(" ")' |
+	  jq -r 'map(" unmap global insert " + .) | join("; ")'
     }
     unmap global insert <ret>
     unmap global insert <space>
@@ -43,20 +43,25 @@ provide-module auto-pairs %{
   # Option commands ────────────────────────────────────────────────────────────
 
   define-command -hidden auto-pairs-save-settings %{
-    $ sh -c %{
-      kcr get %opt{auto_pairs} |
-      kcr get - %opt{auto_pairs_saved_pairs} |
-      jq --slurp '
+    evaluate-commands %sh{
+      (
+        echo "${kak_opt_auto_pairs}" | jq -R '. | split(" ")';
+        echo "${kak_opt_auto_pairs_saved_pairs}" | jq -R '. | split(" ")'
+      ) \
+	  | jq -sr '
         [.[0] | _nwise(2)] as $pairs |
         [.[1] | _nwise(2)] as $saved_pairs |
 
         [
           # Remove mappings from the previous set.
           (
-            $saved_pairs[] as [$opening, $closing] |
-
-            ["unmap", "global", "insert", $opening],
-            ["unmap", "global", "insert", $closing]
+            if $saved_pairs[] | length > 1 then
+              $saved_pairs[] as [$opening, $closing] |
+              ["unmap", "global", "insert", $opening],
+              ["unmap", "global", "insert", $closing]
+            else
+              empty
+            end
           ),
 
           # Create mappings for auto-paired characters.
@@ -64,14 +69,10 @@ provide-module auto-pairs %{
             $pairs[] as [$opening, $closing] |
 
             if $opening == $closing then
-              ["map", "global", "insert", $opening, "<a-;>: {}<ret>"],
-              ["auto-pairs-insert-pairing", $opening, $closing]
+              ["map", "global", "insert", $opening, "<a-;>: auto-pairs-insert-pairing '"'"'" + ($opening | gsub("'"'"'"; '"\"''\""')) + "'"'"' '"'"'" + ($closing | gsub("'"'"'"; '"\"''\""')) + "'"'"'<ret>"]
             else
-              ["map", "global", "insert", $opening, "<a-;>: {}<ret>"],
-              ["auto-pairs-insert-opening", $opening, $closing],
-
-              ["map", "global", "insert", $closing, "<a-;>: {}<ret>"],
-              ["auto-pairs-insert-closing", $opening, $closing]
+              ["map", "global", "insert", $opening, "<a-;>: auto-pairs-insert-opening '"'"'" + ($opening | gsub("'"'"'"; '"\"''\""')) + "'"'"' '"'"'" + ($closing | gsub("'"'"'"; '"\"''\""')) + "'"'"'<ret>"],
+              ["map", "global", "insert", $closing, "<a-;>: auto-pairs-insert-closing '"'"'" + ($opening | gsub("'"'"'"; '"\"''\""')) + "'"'"' '"'"'" + ($closing | gsub("'"'"'"; '"\"''\""')) + "'"'"'<ret>"]
             end
           ),
 
@@ -88,9 +89,9 @@ provide-module auto-pairs %{
 
             ["set-option", "global", "auto_pairs_match_nestable_pairs", $match_nestable_pairs]
           )
-        ]
-      ' |
-      kcr send -
+        ] |
+        map(map("'"'"'" + gsub("'"'"'"; '"\"''\""') + "'"'"'")) |
+        map(join(" "))[]'
     }
     # Save surrounding pairs
     set-option global auto_pairs_saved_pairs %opt{auto_pairs}

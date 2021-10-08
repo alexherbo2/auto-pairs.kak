@@ -2,6 +2,9 @@
 # Heavily based on Visual Studio Code.
 # https://code.visualstudio.com
 #
+# Public commands: ["enable-auto-pairs", "disable-auto-pairs"]
+# Public options: ["auto_pairs"]
+#
 # Usage:
 #
 # enable-auto-pairs

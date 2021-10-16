@@ -2,7 +2,9 @@
 
 Auto-pairing of characters.
 
-Heavily based on https://code.visualstudio.com[Visual Studio Code].
+:vs-code: https://code.visualstudio.com
+
+Heavily based on {vs-code}[Visual Studio Code].
 
 == Usage
 

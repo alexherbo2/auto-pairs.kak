@@ -106,8 +106,8 @@ define-command -override -hidden handle-inserted-opening-pair -params 2 %{
     }
 
     # Add insert mappings
-    map -docstring 'insert character or move right in pair' window insert %arg{2} "<a-;>:auto-pairs-insert-character %%🐈%arg{2}🐈<ret>"
-    map -docstring 'insert a new indented line in pair' window insert <ret> '<a-;>:auto-pairs-insert-new-line<ret>'
+    map -docstring 'insert character or move right in pair' window insert %arg{2} "<a-;>: auto-pairs-insert-character %%🐈%arg{2}🐈<ret>"
+    map -docstring 'insert a new indented line in pair' window insert <ret> '<a-;>: auto-pairs-insert-new-line<ret>'
 
     # Keep the track of inserted pairs
     increment-inserted-pairs-count

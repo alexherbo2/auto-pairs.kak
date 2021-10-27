@@ -20,6 +20,7 @@
 #
 # – {closing-pair} ⇒ Insert character or move right in pair
 # – Enter ⇒ Insert a new indented line in pair (only for the next key)
+# – Control+Enter ⇒ Prompt a count for new indented lines in pair (only for the next key)
 #
 # When moving or leaving insert mode, the functionalities deactivate.
 #
@@ -108,6 +109,7 @@ define-command -override -hidden handle-inserted-opening-pair -params 2 %{
     # Add insert mappings
     map -docstring 'insert character or move right in pair' window insert %arg{2} "<a-;>: auto-pairs-insert-character %%🐈%arg{2}🐈<ret>"
     map -docstring 'insert a new indented line in pair' window insert <ret> '<a-;>: auto-pairs-insert-new-line<ret>'
+    map -docstring 'prompt a count for new indented lines in pair' window insert <c-ret> '<a-;>: auto-pairs-insert-new-line-count-prompt<ret>'
 
     # Keep the track of inserted pairs
     increment-inserted-pairs-count
@@ -119,6 +121,7 @@ define-command -override -hidden handle-inserted-opening-pair -params 2 %{
     }
     hook -group auto-pairs -once window InsertChar '.*' %{
       unmap window insert <ret>
+      unmap window insert <c-ret>
     }
     hook -always -once window ModeChange 'pop:insert:normal' %{
       reset-inserted-pairs-count
@@ -155,6 +158,16 @@ define-command -override -hidden auto-pairs-insert-new-line %{
   execute-keys '<a-;>;<ret><ret><esc>KK<a-&>j<a-gt>'
   execute-keys -with-hooks A
   reset-inserted-pairs-count
+}
+
+# Control+Enter ⇒ Prompt a count for new indented lines in pair (only for the next key)
+define-command -override -hidden auto-pairs-insert-new-line-count-prompt %{
+  prompt count: %{
+    execute-keys '<a-;>;<ret><ret><esc>KK<a-&>j<a-gt>'
+    execute-keys "<a-x>Hy<a-x><a-d>%val{text}O<c-r>""<esc>"
+    execute-keys -with-hooks A
+    reset-inserted-pairs-count
+  }
 }
 
 # ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈

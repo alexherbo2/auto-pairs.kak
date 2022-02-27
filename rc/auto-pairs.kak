@@ -51,7 +51,7 @@ declare-option -hidden int inserted_pairs
 # Retain inserted pairs
 remove-hooks global clean-auto-pairs-state
 hook -group clean-auto-pairs-state global WinSetOption 'inserted_pairs=0' %{
-  unmap window insert
+  trigger-user-hook auto-pairs-unmap-closers
   remove-hooks window auto-pairs
 }
 
@@ -78,6 +78,7 @@ define-command -override disable-auto-pairs -docstring 'disable auto-pairs' %{
 define-command -override -hidden auto-close-pair -params 2 %{
   hook -group auto-pairs global InsertChar "\Q%arg{1}" "handle-inserted-opening-pair %%<%arg{1}> %%<%arg{2}>"
   hook -group auto-pairs global InsertDelete "\Q%arg{1}" "handle-deleted-opening-pair %%<%arg{1}> %%<%arg{2}>"
+  hook -group auto-pairs global User auto-pairs-unmap-closers "unmap window insert %%<%arg{2}>"
 }
 
 # Internal hooks ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈

@@ -18,7 +18,7 @@
 # The script installs insert hooks on opening pair characters, such as brackets and quotes.
 # When auto-closing has been triggered, it activates the following functionalities:
 #
-# – {closing-pair} ⇒ Insert character or move right in pair
+# – {closing-pair} ⇒ Insert closing pair or move right in pair
 # – Enter ⇒ Insert a new indented line in pair (only for the next key)
 # – Control+Enter ⇒ Prompt a count for new indented lines in pair (only for the next key)
 #
@@ -45,15 +45,9 @@ declare-option -docstring 'auto-pairing of characters activates only when this e
 
 # Internal variables ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
+# Retain inserted pairs
 declare-option -hidden str opening_pair
 declare-option -hidden int inserted_pairs
-
-# Retain inserted pairs
-remove-hooks global clean-auto-pairs-state
-hook -group clean-auto-pairs-state global WinSetOption 'inserted_pairs=0' %{
-  trigger-user-hook auto-pairs-unmap-closers
-  remove-hooks window auto-pairs
-}
 
 # Commands ─────────────────────────────────────────────────────────────────────
 
@@ -78,7 +72,6 @@ define-command -override disable-auto-pairs -docstring 'disable auto-pairs' %{
 define-command -override -hidden auto-close-pair -params 2 %{
   hook -group auto-pairs global InsertChar "\Q%arg{1}" "handle-inserted-opening-pair %%<%arg{1}> %%<%arg{2}>"
   hook -group auto-pairs global InsertDelete "\Q%arg{1}" "handle-deleted-opening-pair %%<%arg{1}> %%<%arg{2}>"
-  hook -group auto-pairs global User auto-pairs-unmap-closers "unmap window insert %%<%arg{2}>"
 }
 
 # Internal hooks ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
@@ -94,6 +87,9 @@ define-command -override -hidden handle-inserted-opening-pair -params 2 %{
     # Action: Close pair
     execute-keys %arg{2}
 
+    # Keep the track of inserted pairs
+    increment-inserted-pairs-count
+
     # Move back in pair (preserve selected text):
     try %{
       execute-keys -draft '<a-k>..<ret>'
@@ -103,22 +99,29 @@ define-command -override -hidden handle-inserted-opening-pair -params 2 %{
     }
 
     # Add insert mappings
-    map -docstring 'insert character or move right in pair' window insert %arg{2} "<a-;>: auto-pairs-insert-character %%🐈%arg{2}🐈<ret>"
-    map -docstring 'insert a new indented line in pair' window insert <ret> '<a-;>: auto-pairs-insert-new-line<ret>'
-    map -docstring 'prompt a count for new indented lines in pair' window insert <c-ret> '<a-;>: auto-pairs-insert-new-line-count-prompt<ret>'
+    map -docstring 'insert closing pair or move right in pair' window insert %arg{2} "<a-;>: insert-closing-pair-or-move-right-in-pair %%🐈%arg{2}🐈<ret>"
+    map -docstring 'insert a new indented line in pair' window insert <ret> '<a-;>: insert-new-line-in-pair<ret>'
+    map -docstring 'prompt a count for new indented lines in pair' window insert <c-ret> '<a-;>: prompt-insert-new-line-in-pair<ret>'
 
-    # Keep the track of inserted pairs
-    increment-inserted-pairs-count
-
-    # Clean state when moving or leaving insert mode
     # Enter is only available on next key.
-    hook -group auto-pairs -once window InsertMove '.*' %{
-      reset-inserted-pairs-count
-    }
     hook -group auto-pairs -once window InsertChar '.*' %{
       unmap window insert <ret>
       unmap window insert <c-ret>
     }
+
+    # Clean insert mappings and remove hooks
+    hook -group auto-pairs -once window WinSetOption 'inserted_pairs=0' "
+      unmap window insert %%🐈%arg{2}🐈
+      unmap window insert <ret>
+      unmap window insert <c-ret>
+      remove-hooks window auto-pairs
+    "
+
+    # Clean state when moving or leaving insert mode
+    hook -group auto-pairs -once window InsertMove '.*' %{
+      reset-inserted-pairs-count
+    }
+
     hook -always -once window ModeChange 'pop:insert:normal' %{
       reset-inserted-pairs-count
     }
@@ -136,8 +139,8 @@ define-command -override -hidden handle-deleted-opening-pair -params 2 %{
 
 # Internal mappings ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
-# {closing-pair} ⇒ Insert character or move right in pair
-define-command -override -hidden auto-pairs-insert-character -params 1 %{
+# {closing-pair} ⇒ Insert closing pair or move right in pair
+define-command -override -hidden insert-closing-pair-or-move-right-in-pair -params 1 %{
   try %{
     execute-keys -draft "<space>;<a-k>\Q%arg{1}<ret>"
     # Move right in pair
@@ -150,14 +153,14 @@ define-command -override -hidden auto-pairs-insert-character -params 1 %{
 }
 
 # Enter ⇒ Insert a new indented line in pair (only for the next key)
-define-command -override -hidden auto-pairs-insert-new-line %{
+define-command -override -hidden insert-new-line-in-pair %{
   execute-keys '<a-;>;<ret><ret><esc>KK<a-&>j<a-gt>'
   execute-keys -with-hooks A
   reset-inserted-pairs-count
 }
 
 # Control+Enter ⇒ Prompt a count for new indented lines in pair (only for the next key)
-define-command -override -hidden auto-pairs-insert-new-line-count-prompt %{
+define-command -override -hidden prompt-insert-new-line-in-pair %{
   prompt count: %{
     execute-keys '<a-;>;<ret><ret><esc>KK<a-&>j<a-gt>'
     execute-keys "<a-x>Hy<a-x><a-d>%val{text}O<c-r>""<esc>"

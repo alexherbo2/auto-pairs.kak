@@ -142,14 +142,16 @@ define-command -override -hidden handle-deleted-opening-pair -params 2 %{
 # {closing-pair} ⇒ Insert closing pair or move right in pair
 define-command -override -hidden insert-closing-pair-or-move-right-in-pair -params 1 %{
   try %{
+    # Succeeds if main selection's cursor lies on the current pair's closing character
     execute-keys -draft "<space>;<a-k>\Q%arg{1}<ret>"
-    # Move right in pair
-    execute-keys '<a-;>l'
+
+    # Remove closing pair to allow insertion
+    execute-keys '<del>'
     decrement-inserted-pairs-count
-  } catch %{
-    # Insert character with hooks
-    execute-keys -with-hooks %arg{1}
   }
+
+  # Insert character with hooks
+  execute-keys -with-hooks %arg{1}
 }
 
 # Enter ⇒ Insert a new indented line in pair (only for the next key)

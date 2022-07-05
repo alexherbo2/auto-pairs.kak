@@ -163,7 +163,7 @@ define-command -override -hidden insert-new-line-in-pair %{
 define-command -override -hidden prompt-insert-new-line-in-pair %{
   prompt count: %{
     execute-keys '<a-;>;<ret><ret><esc>KK<a-&>j<a-gt>'
-    execute-keys "<a-x>Hy<a-x><a-d>%val{text}O<c-r>""<esc>"
+    execute-keys "xHyx<a-d>%val{text}O<c-r>""<esc>"
     execute-keys -with-hooks A
     reset-inserted-pairs-count
   }

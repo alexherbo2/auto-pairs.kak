@@ -99,9 +99,9 @@ define-command -override -hidden handle-inserted-opening-pair -params 2 %{
     }
 
     # Add insert mappings
-    map -docstring 'insert closing pair or move right in pair' window insert %arg{2} "<a-;>: insert-closing-pair-or-move-right-in-pair %%🐈%arg{2}🐈<ret>"
-    map -docstring 'insert a new indented line in pair' window insert <ret> '<a-;>: insert-new-line-in-pair<ret>'
-    map -docstring 'prompt a count for new indented lines in pair' window insert <c-ret> '<a-;>: prompt-insert-new-line-in-pair<ret>'
+    map -docstring 'insert closing pair or move right in pair' window insert %arg{2} "<a-;>:insert-closing-pair-or-move-right-in-pair %%🐈%arg{2}🐈<ret>"
+    map -docstring 'insert a new indented line in pair' window insert <ret> '<a-;>:insert-new-line-in-pair<ret>'
+    map -docstring 'prompt a count for new indented lines in pair' window insert <c-ret> '<a-;>:prompt-insert-new-line-in-pair<ret>'
 
     # Enter is only available on next key.
     hook -group auto-pairs -once window InsertChar '.*' %{

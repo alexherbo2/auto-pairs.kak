@@ -131,7 +131,7 @@ define-command -override -hidden handle-inserted-opening-pair -params 2 %{
 # Backspace ⇒ Erases the whole bracket
 define-command -override -hidden handle-deleted-opening-pair -params 2 %{
   try %{
-    execute-keys -draft "<space>;<a-k>\Q%arg{2}<ret>"
+    execute-keys -draft ",;<a-k>\Q%arg{2}<ret>"
     execute-keys '<del>'
     decrement-inserted-pairs-count
   }
@@ -142,7 +142,7 @@ define-command -override -hidden handle-deleted-opening-pair -params 2 %{
 # {closing-pair} ⇒ Insert closing pair or move right in pair
 define-command -override -hidden insert-closing-pair-or-move-right-in-pair -params 1 %{
   try %{
-    execute-keys -draft "<space>;<a-k>\Q%arg{1}<ret>"
+    execute-keys -draft ",;<a-k>\Q%arg{1}<ret>"
     # Move right in pair
     execute-keys '<a-;>l'
     decrement-inserted-pairs-count

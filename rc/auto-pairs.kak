@@ -41,12 +41,7 @@ declare-option -docstring 'list of surrounding pairs' str-list auto_pairs ( ) { 
 
 # Auto-pairing of characters activates only when this expression does not fail.
 # By default, it avoids non-nestable pairs (such as quotes), escaped pairs and word characters.
-declare-option -docstring 'auto-pairing of characters activates only when this expression does not fail' str auto_close_trigger %{
-  execute-keys '<a-h>'
-  execute-keys '<a-K>(\w["''`]|""|''''|``).\z<ret>'
-  set-register / "[^\\]?\Q%opt{opening_pair}\E\W\z"
-  execute-keys '<a-k><ret>'
-}
+declare-option -docstring 'auto-pairing of characters activates only when this expression does not fail' str auto_close_trigger '<a-h><a-K>(\w["''`]|""|''''|``).\z<ret><a-k>[^\\]?\Q%opt{opening_pair}<a-!>\E\W\z<ret>'
 
 # Internal variables ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
@@ -93,7 +88,7 @@ define-command -override -hidden handle-inserted-opening-pair -params 2 %{
     # If not, it will throw an exception and execution will jump to
     # the “catch” block below.
     set-option window opening_pair %arg{1}
-    evaluate-commands -draft -save-regs '/' %opt{auto_close_trigger}
+    execute-keys -draft %opt{auto_close_trigger}
 
     # Action: Close pair
     execute-keys %arg{2}
